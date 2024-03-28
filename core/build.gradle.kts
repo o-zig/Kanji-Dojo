@@ -103,6 +103,12 @@ android {
         kotlinCompilerExtensionVersion = "1.5.2"
     }
 
+    buildTypes {
+        getByName("release") {
+            consumerProguardFile("consumer-rules.pro")
+        }
+    }
+
 }
 
 compose {
