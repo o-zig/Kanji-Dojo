@@ -3,9 +3,14 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
+data class Asset(
+    val fileName: String,
+    val url: String?
+)
+
 data class KanjiDojoAssetLocation(
     val directory: String,
-    val expectedFiles: Map<String, String>
+    val expectedAssets: List<Asset>
 )
 
 open class PrepareKanjiDojoAssetsTask : DefaultTask() {
@@ -18,22 +23,35 @@ open class PrepareKanjiDojoAssetsTask : DefaultTask() {
 
         private val commonAssetLocation = KanjiDojoAssetLocation(
             directory = "core/src/commonMain/resources",
-            expectedFiles = mapOf(
-                AppDataAssetFileName to "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/v8.0/kanji-dojo-data-base-v8.sql"
+            expectedAssets = listOf(
+                Asset(
+                    fileName = AppDataAssetFileName,
+                    url = "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/v8.0/kanji-dojo-data-base-v8.sql"
+                )
             )
         )
 
         private val androidAssetLocation = KanjiDojoAssetLocation(
             directory = "core/src/androidMain/assets",
-            expectedFiles = mapOf(
-                KanaVoice1AndroidFileName to "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/voice-v1/ja-JP-Neural2-B.opus"
+            expectedAssets = listOf(
+                Asset(
+                    fileName = KanaVoice1AndroidFileName,
+                    url = "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/voice-v1/ja-JP-Neural2-B.opus"
+                )
             )
         )
 
         private val desktopAssetLocation = KanjiDojoAssetLocation(
             directory = "core/src/jvmMain/resources",
-            expectedFiles = mapOf(
-                KanaVoice1JvmFileName to "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/voice-v1/ja-JP-Neural2-B.wav"
+            expectedAssets = listOf(
+                Asset(
+                    fileName = KanaVoice1JvmFileName,
+                    url = "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/voice-v1/ja-JP-Neural2-B.wav"
+                ),
+                Asset(
+                    fileName = "icon.png",
+                    url = null
+                )
             )
         )
     }
@@ -57,8 +75,9 @@ open class PrepareKanjiDojoAssetsTask : DefaultTask() {
         val assetsDir = File(project.rootDir, assetLocation.directory)
         if (!assetsDir.exists()) assetsDir.mkdirs()
 
+        val expectedFileNames = assetLocation.expectedAssets.map { it.fileName }.toSet()
         val unexpectedFiles = assetsDir.listFiles()!!
-            .filter { !assetLocation.expectedFiles.containsKey(it.name) }
+            .filter { !expectedFileNames.contains(it.name) }
 
         if (unexpectedFiles.isNotEmpty()) {
             val unexpectedFileNames = unexpectedFiles.joinToString { it.name }
@@ -67,7 +86,8 @@ open class PrepareKanjiDojoAssetsTask : DefaultTask() {
             unexpectedFiles.forEach { it.delete() }
         }
 
-        assetLocation.expectedFiles.forEach { (fileName, url) ->
+        assetLocation.expectedAssets.forEach { (fileName, url) ->
+            url ?: return@forEach
             val assetFile = File(assetsDir, fileName)
             if (!assetFile.exists()) {
                 println("Asset $fileName not found, downloading")
