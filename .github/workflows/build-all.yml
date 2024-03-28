@@ -1,6 +1,6 @@
 name: Build All
 
-on: workflow_dispatch
+on: [ workflow_call, workflow_dispatch ]
 
 jobs:
   build-android-and-desktop-linux:
@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android
-          path: app/build/outputs/fdroid/**/*.apk
+          path: app/build/outputs/apk/fdroid/release/*.apk
           retention-days: 1
 
       - name: Upload Desktop Build
@@ -65,14 +65,12 @@ jobs:
           path: core/build/compose/jars/*.jar
           retention-days: 1
 
-  publish:
+  verify-uploaded-builds:
     needs: [ build-android-and-desktop-linux, build-desktop-windows ]
     runs-on: ubuntu-latest
     steps:
       - name: Downloading artifacts
         uses: actions/download-artifact@v4
 
-      - name: Create release
-        run: |
-          echo "TODO, create release here"
-          ls -R
+      - name: Print all files
+        run: ls -R
