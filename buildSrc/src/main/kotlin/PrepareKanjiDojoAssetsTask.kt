@@ -11,15 +11,15 @@ data class KanjiDojoAssetLocation(
 open class PrepareKanjiDojoAssetsTask : DefaultTask() {
 
     companion object {
-        const val AppDataAssetFileName = "kanji-dojo-data-base-v7.sql"
-        const val AppDataDatabaseVersion = 7
+        const val AppDataAssetFileName = "kanji-dojo-data-base-v8.sql"
+        const val AppDataDatabaseVersion = 8
         const val KanaVoice1AndroidFileName = "ja-JP-Neural2-B.opus"
         const val KanaVoice1JvmFileName = "ja-JP-Neural2-B.wav"
 
         private val commonAssetLocation = KanjiDojoAssetLocation(
             directory = "core/src/commonMain/resources",
             expectedFiles = mapOf(
-                AppDataAssetFileName to "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/v7.0/kanji-dojo-data-base-v7.sql"
+                AppDataAssetFileName to "https://github.com/syt0r/Kanji-Dojo-Data/releases/download/v8.0/kanji-dojo-data-base-v8.sql"
             )
         )
 
@@ -56,6 +56,16 @@ open class PrepareKanjiDojoAssetsTask : DefaultTask() {
     private fun handleAssets(assetLocation: KanjiDojoAssetLocation) {
         val assetsDir = File(project.rootDir, assetLocation.directory)
         if (!assetsDir.exists()) assetsDir.mkdirs()
+
+        val unexpectedFiles = assetsDir.listFiles()!!
+            .filter { !assetLocation.expectedFiles.containsKey(it.name) }
+
+        if (unexpectedFiles.isNotEmpty()) {
+            val unexpectedFileNames = unexpectedFiles.joinToString { it.name }
+            println("Found ${unexpectedFiles.size} unknown assets [$unexpectedFileNames], removing...")
+
+            unexpectedFiles.forEach { it.delete() }
+        }
 
         assetLocation.expectedFiles.forEach { (fileName, url) ->
             val assetFile = File(assetsDir, fileName)

@@ -47,7 +47,7 @@ CREATE TABLE expression(
 CREATE TABLE expression_reading(
     expression_id   INTEGER NOT NULL,
     expression      TEXT,
-    kana_expression TEXT   NOT NULL,
+    kana_expression TEXT,
     furigana        TEXT,
     rank            INTEGER    NOT NULL,
     PRIMARY KEY (expression_id, expression, kana_expression)
@@ -84,12 +84,11 @@ SELECT * FROM expression_meaning WHERE expression_id = ? ORDER BY priority;
 getExpressionReadings:
 SELECT * FROM expression_reading WHERE expression_id = ? ORDER BY rank;
 
-getKanaExpressionsReadings:
-SELECT *
+getExpressionsWithKanaReadingsLike:
+SELECT DISTINCT expression_id
 FROM expression_reading
 WHERE kana_expression LIKE ?
 AND length(kana_expression) > 1
-AND expression IS NOT NULL
 ORDER BY rank
 LIMIT ?;
 

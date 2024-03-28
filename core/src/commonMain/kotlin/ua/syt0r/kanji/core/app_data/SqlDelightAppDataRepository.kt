@@ -113,17 +113,16 @@ class SqlDelightAppDataRepository(
         char: String,
         limit: Int
     ): List<JapaneseWord> = runTransaction {
-        getKanaExpressionsReadings("%$char%", limit.toLong())
+        getExpressionsWithKanaReadingsLike("%$char%", limit.toLong())
             .executeAsList()
-            .groupBy { it.expression_id }
-            .map { (id, readingEntities) ->
-                val readings = readingEntities
+            .map { id ->
+                val readings = getExpressionReadings(id).executeAsList()
                     .map {
                         RankedReading(
-                            it.expression,
-                            it.kana_expression,
-                            it.rank.toInt(),
-                            it.furigana
+                            kanjiExpression = it.expression,
+                            kanaExpression = it.kana_expression,
+                            rank = it.rank.toInt(),
+                            furigana = it.furigana
                         )
                     }
                     .sortedWith(readingComparator(char, true))
@@ -163,7 +162,7 @@ class SqlDelightAppDataRepository(
 
     private data class RankedReading(
         val kanjiExpression: String?,
-        val kanaExpression: String,
+        val kanaExpression: String?,
         val rank: Int,
         val furigana: String?
     )
@@ -178,7 +177,8 @@ class SqlDelightAppDataRepository(
                 val containsText = it.kanjiExpression
                     ?.takeIf { !kanaOnly }
                     ?.contains(prioritizedText)
-                    ?: it.kanaExpression.contains(prioritizedText)
+                    ?: it.kanaExpression?.contains(prioritizedText)
+                    ?: false
                 !containsText
             },
             { it.rank }
@@ -189,11 +189,11 @@ class SqlDelightAppDataRepository(
         kanaOnly: Boolean = false
     ): FuriganaString {
         val compounds = furigana
-            ?.takeIf { !kanaOnly }
+            ?.takeIf { !kanaOnly || kanaExpression == null }
             ?.let { Json.decodeFromString<List<FuriganaDBEntity>>(it) }
             ?.takeIf { it.isNotEmpty() }
             ?.map { FuriganaStringCompound(it.text, it.annotation) }
-            ?: listOf(FuriganaStringCompound(kanaExpression))
+            ?: listOf(FuriganaStringCompound(kanaExpression!!))
         return FuriganaString(compounds)
     }
 
