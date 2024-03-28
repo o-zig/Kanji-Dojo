@@ -18,15 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
@@ -161,12 +157,9 @@ private fun ColumnScope.KanjiData(
         }
     }
 
-    val titleMaxWidthPx = remember { mutableStateOf(0) }
-
     if (data.kun.isNotEmpty()) {
         KanjiReadingRow(
             title = resolveString { kunyomi },
-            titleMaxWidthPx = titleMaxWidthPx,
             items = data.kun,
             modifier = Modifier.fillMaxWidth().alpha(answerContentAlpha)
         )
@@ -175,7 +168,6 @@ private fun ColumnScope.KanjiData(
     if (data.on.isNotEmpty()) {
         KanjiReadingRow(
             title = resolveString { onyomi },
-            titleMaxWidthPx = titleMaxWidthPx,
             items = data.on,
             modifier = Modifier.alpha(answerContentAlpha)
         )
@@ -187,7 +179,6 @@ private fun ColumnScope.KanjiData(
 @Composable
 private fun KanjiReadingRow(
     title: String,
-    titleMaxWidthPx: MutableState<Int>,
     items: List<String>,
     modifier: Modifier
 ) {
@@ -200,13 +191,7 @@ private fun KanjiReadingRow(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.widthIn(
-                min = with(LocalDensity.current) { titleMaxWidthPx.value.toDp() }
-            ),
-            onTextLayout = {
-                if (it.size.width > titleMaxWidthPx.value) titleMaxWidthPx.value = it.size.width
-            }
+            style = MaterialTheme.typography.titleMedium
         )
 
         FlowRow(
@@ -218,7 +203,6 @@ private fun KanjiReadingRow(
                 Text(
                     text = it,
                     modifier = Modifier
-                        .padding(top = 4.dp, end = 4.dp)
                         .clip(MaterialTheme.shapes.small)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 8.dp, vertical = 4.dp),
