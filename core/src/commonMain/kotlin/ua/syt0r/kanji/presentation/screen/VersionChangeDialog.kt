@@ -42,6 +42,17 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.3", LocalDate(2024, 3, 28)) {
+                    append(
+                        """
+                        - Improved filter configuration on practice details screen
+                        - Added more expressions for better character coverage
+                        - Updated expressions ranking
+                        - Added feedback option to settings screen and alternative expressions dialogs
+                        - Added Linux and Windows builds to GitHub's releases
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.2", LocalDate(2024, 3, 11)) {
                     append(
                         """

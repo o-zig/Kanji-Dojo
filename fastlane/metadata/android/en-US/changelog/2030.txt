@@ -1,0 +1,5 @@
+- Improved filter configuration on practice details screen
+- Added more expressions for better character coverage
+- Updated expressions ranking
+- Added feedback option to settings screen and alternative expressions dialogs
+- Added Linux and Windows builds to GitHub's releases
