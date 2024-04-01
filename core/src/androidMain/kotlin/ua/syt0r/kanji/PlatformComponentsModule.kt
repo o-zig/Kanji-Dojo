@@ -29,7 +29,7 @@ import ua.syt0r.kanji.core.tts.AndroidKanaTtsManager
 import ua.syt0r.kanji.core.tts.KanaTtsManager
 import ua.syt0r.kanji.core.tts.Neural2BKanaVoiceData
 import ua.syt0r.kanji.core.user_data.UserDataDatabaseManager
-import ua.syt0r.kanji.core.user_data.UserDataDatabaseManagerAndroid
+import ua.syt0r.kanji.core.user_data.AndroidUserDataDatabaseManager
 
 val userPreferencesDataStoreQualifier = named("user_preferences_data_store")
 
@@ -51,7 +51,7 @@ actual val platformComponentsModule: Module = module {
     }
 
     single<UserDataDatabaseManager> {
-        UserDataDatabaseManagerAndroid(
+        AndroidUserDataDatabaseManager(
             context = androidContext()
         )
     }

@@ -8,7 +8,7 @@ import ua.syt0r.kanji.core.readUserVersion
 import ua.syt0r.kanji.core.user_data.db.UserDataDatabase
 import java.io.File
 
-class UserDataDatabaseManagerJvm(
+class JvmUserDataDatabaseManager(
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : BaseUserDataDatabaseManager(coroutineScope) {
 

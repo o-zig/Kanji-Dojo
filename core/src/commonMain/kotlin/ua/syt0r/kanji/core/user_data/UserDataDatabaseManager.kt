@@ -3,14 +3,14 @@ package ua.syt0r.kanji.core.user_data
 import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ua.syt0r.kanji.core.readUserVersion
 import ua.syt0r.kanji.core.transferToCompat
 import ua.syt0r.kanji.core.user_data.db.UserDataDatabase
@@ -41,7 +41,7 @@ class UserDatabaseInfo(
 )
 
 abstract class BaseUserDataDatabaseManager(
-    coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope
 ) : UserDataDatabaseManager {
 
     protected data class DatabaseConnection(
@@ -49,16 +49,13 @@ abstract class BaseUserDataDatabaseManager(
         val database: UserDataDatabase
     )
 
-    private val activeDatabaseConnection = MutableStateFlow<DatabaseConnection?>(null)
+    private val currentDatabaseConnection = MutableStateFlow<Deferred<DatabaseConnection>?>(
+        value = createDeferredDatabaseConnection()
+    )
+
     private val onDataUpdatedFlow = MutableSharedFlow<Unit>()
 
     override val dataChangedFlow: SharedFlow<Unit> = onDataUpdatedFlow
-
-    init {
-        coroutineScope.launch(Dispatchers.IO) {
-            activeDatabaseConnection.value = createDatabaseConnection()
-        }
-    }
 
     protected fun getMigrationCallbacks(): Array<AfterVersion> = arrayOf(
         AfterVersion(3) { UserDataDatabaseMigrationAfter3.handleMigrations(it) },
@@ -73,13 +70,12 @@ abstract class BaseUserDataDatabaseManager(
         notifyDataChange: Boolean,
         block: PracticeQueries.() -> T
     ): T {
-        val result = withContext(Dispatchers.IO) {
-            val queries = activeDatabaseConnection.filterNotNull()
-                .first()
-                .database
-                .practiceQueries
-            queries.transactionWithResult { queries.block() }
-        }
+        val result = coroutineScope
+            .async {
+                val queries = waitDatabaseConnection().database.practiceQueries
+                queries.transactionWithResult { queries.block() }
+            }
+            .await()
 
         if (notifyDataChange) onDataUpdatedFlow.emit(Unit)
 
@@ -92,7 +88,7 @@ abstract class BaseUserDataDatabaseManager(
         val info = getActiveDatabaseInfo()
         closeCurrentConnection()
         val result = runCatching { scope(info) }
-        activeDatabaseConnection.value = createDatabaseConnection()
+        currentDatabaseConnection.value = createDeferredDatabaseConnection()
         result.exceptionOrNull()?.let { throw it }
     }
 
@@ -105,16 +101,24 @@ abstract class BaseUserDataDatabaseManager(
         onDataUpdatedFlow.emit(Unit)
     }
 
-    private fun closeCurrentConnection() {
-        val currentData = activeDatabaseConnection.value ?: return
-        currentData.sqlDriver.close()
-    }
+    private suspend fun closeCurrentConnection() = coroutineScope.launch {
+        val currentConnection = currentDatabaseConnection.value?.await() ?: return@launch
+        currentConnection.sqlDriver.close()
+    }.join()
 
     private suspend fun getActiveDatabaseInfo(): UserDatabaseInfo {
         return UserDatabaseInfo(
-            version = activeDatabaseConnection.filterNotNull().first().sqlDriver.readUserVersion(),
+            version = waitDatabaseConnection().sqlDriver.readUserVersion(),
             file = getDatabaseFile()
         )
+    }
+
+    private fun createDeferredDatabaseConnection(): Deferred<DatabaseConnection> {
+        return coroutineScope.async { createDatabaseConnection() }
+    }
+
+    private suspend fun waitDatabaseConnection(): DatabaseConnection {
+        return currentDatabaseConnection.filterNotNull().first().await()
     }
 
 }

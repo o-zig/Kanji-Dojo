@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import ua.syt0r.kanji.core.user_data.db.UserDataDatabase
 import java.io.File
 
-class UserDataDatabaseManagerAndroid(
+class AndroidUserDataDatabaseManager(
     private val context: Context,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : BaseUserDataDatabaseManager(coroutineScope) {
