@@ -395,7 +395,7 @@ object JapanesePracticePreviewStrings : PracticePreviewStrings {
 
     override val dialogCommon: PracticePreviewDialogCommonStrings =
         JapanesePracticePreviewDialogCommonStrings
-    override val practiceTypeDialog: PracticeTypeDialogStrings = JapanesePracticeTypeDialogStrings
+    override val practiceType: PracticeTypeStrings = JapanesePracticeTypeStrings
     override val filterDialog: FilterDialogStrings = JapaneseFilterDialogStrings
     override val sortDialog: SortDialogStrings = JapaneseSortDialogStrings
     override val layoutDialog: PracticePreviewLayoutDialogStrings =
@@ -415,8 +415,7 @@ object JapanesePracticePreviewDialogCommonStrings : PracticePreviewDialogCommonS
     override val buttonApply: String = "適用"
 }
 
-object JapanesePracticeTypeDialogStrings : PracticeTypeDialogStrings {
-    override val title: String = "練習の種類"
+object JapanesePracticeTypeStrings : PracticeTypeStrings {
     override val practiceTypeWriting: String = "書き"
     override val practiceTypeReading: String = "読み"
 }

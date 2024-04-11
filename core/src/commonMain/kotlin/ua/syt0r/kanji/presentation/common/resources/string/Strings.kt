@@ -358,15 +358,14 @@ interface PracticePreviewStrings {
     val kanaGroupsModeActivatedLabel: String
 
     val dialogCommon: PracticePreviewDialogCommonStrings
-    val practiceTypeDialog: PracticeTypeDialogStrings
+    val practiceType: PracticeTypeStrings
     val filterDialog: FilterDialogStrings
     val sortDialog: SortDialogStrings
     val layoutDialog: PracticePreviewLayoutDialogStrings
 
 }
 
-interface PracticeTypeDialogStrings {
-    val title: String
+interface PracticeTypeStrings {
     val practiceTypeWriting: String
     val practiceTypeReading: String
 }

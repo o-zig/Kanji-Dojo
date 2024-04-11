@@ -415,7 +415,7 @@ object EnglishPracticePreviewStrings : PracticePreviewStrings {
 
     override val dialogCommon: PracticePreviewDialogCommonStrings =
         EnglishPracticePreviewDialogCommonStrings
-    override val practiceTypeDialog: PracticeTypeDialogStrings = EnglishPracticeTypeDialogStrings
+    override val practiceType: PracticeTypeStrings = EnglishPracticeTypeStrings
     override val filterDialog: FilterDialogStrings = EnglishFilterDialogStrings
     override val sortDialog: SortDialogStrings = EnglishSortDialogStrings
     override val layoutDialog: PracticePreviewLayoutDialogStrings =
@@ -435,8 +435,7 @@ object EnglishPracticePreviewDialogCommonStrings : PracticePreviewDialogCommonSt
     override val buttonApply: String = "Apply"
 }
 
-object EnglishPracticeTypeDialogStrings : PracticeTypeDialogStrings {
-    override val title: String = "Practice Type"
+object EnglishPracticeTypeStrings : PracticeTypeStrings {
     override val practiceTypeWriting: String = "Writing"
     override val practiceTypeReading: String = "Reading"
 }

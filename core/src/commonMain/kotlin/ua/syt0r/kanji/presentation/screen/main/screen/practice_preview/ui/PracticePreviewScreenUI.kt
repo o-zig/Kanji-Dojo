@@ -971,18 +971,6 @@ private fun ConfigurationIndicatorRow(
     onConfigurationUpdate: (PracticePreviewScreenConfiguration) -> Unit
 ) {
 
-    var showPracticeTypeDialog by remember { mutableStateOf(false) }
-    if (showPracticeTypeDialog) {
-        PracticePreviewScreenPracticeTypeDialog(
-            practiceType = configuration.practiceType,
-            onDismissRequest = { showPracticeTypeDialog = false },
-            onApplyConfiguration = {
-                showPracticeTypeDialog = false
-                onConfigurationUpdate(configuration.copy(practiceType = it))
-            }
-        )
-    }
-
     var showFilterOptionDialog by remember { mutableStateOf(false) }
     if (showFilterOptionDialog) {
         PracticePreviewScreenFilterOptionDialog(
@@ -1014,7 +1002,13 @@ private fun ConfigurationIndicatorRow(
     ) {
         FilterChip(
             selected = true,
-            onClick = { showPracticeTypeDialog = true },
+            onClick = {
+                val newPracticeType = when (configuration.practiceType) {
+                    PracticeType.Writing -> PracticeType.Reading
+                    PracticeType.Reading -> PracticeType.Writing
+                }
+                onConfigurationUpdate(configuration.copy(practiceType = newPracticeType))
+            },
             modifier = Modifier.wrapContentSize(Alignment.CenterStart),
             label = { Text(resolveString(configuration.practiceType.titleResolver)) },
             trailingIcon = { Icon(configuration.practiceType.imageVector, null) }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
@@ -50,47 +49,8 @@ import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.ui.MultiplatformPopup
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_preview.data.FilterConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_preview.data.PracticePreviewLayout
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_preview.data.PracticeType
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_preview.data.SortOption
 
-
-@Composable
-fun PracticePreviewScreenPracticeTypeDialog(
-    practiceType: PracticeType,
-    onDismissRequest: () -> Unit,
-    onApplyConfiguration: (PracticeType) -> Unit
-) {
-
-    var selectedPracticeType by rememberSaveable { mutableStateOf(practiceType) }
-
-    PracticePreviewScreenBaseDialog(
-        title = resolveString { practicePreview.practiceTypeDialog.title },
-        onDismissRequest = onDismissRequest,
-        onApplyClick = { onApplyConfiguration(selectedPracticeType) }
-    ) {
-
-        PracticeType.values().forEach {
-            SelectableRow(
-                isSelected = it == selectedPracticeType,
-                onClick = { selectedPracticeType = it }
-            ) {
-                Icon(
-                    imageVector = it.imageVector,
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                        .padding(start = 20.dp)
-                        .size(24.dp)
-                )
-                Text(
-                    text = resolveString(it.titleResolver),
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
-                )
-            }
-        }
-
-    }
-
-}
 
 private data class FilterCheckboxRowData(
     val valueState: MutableState<Boolean>,

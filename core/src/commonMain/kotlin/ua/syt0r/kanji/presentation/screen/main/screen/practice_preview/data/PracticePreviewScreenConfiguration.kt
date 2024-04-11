@@ -26,12 +26,12 @@ enum class PracticeType(
     val imageVector: ImageVector
 ) {
     Writing(
-        titleResolver = { practicePreview.practiceTypeDialog.practiceTypeWriting },
+        titleResolver = { practicePreview.practiceType.practiceTypeWriting },
         correspondingRepoType = RepoPracticeType.Writing,
         imageVector = Icons.Default.Draw
     ),
     Reading(
-        titleResolver = { practicePreview.practiceTypeDialog.practiceTypeReading },
+        titleResolver = { practicePreview.practiceType.practiceTypeReading },
         correspondingRepoType = RepoPracticeType.Reading,
         imageVector = Icons.Default.LocalLibrary
     )
