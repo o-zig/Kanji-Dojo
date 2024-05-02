@@ -1,0 +1,3 @@
+- Added Input Mode configuration for writing practice, allowing to write characters instead of strokes
+- Removed practice type dialog on practice details screen, now it's togglable button
+- Small improvements in ranking of expressions and translations

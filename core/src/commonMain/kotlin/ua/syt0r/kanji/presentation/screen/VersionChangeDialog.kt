@@ -42,6 +42,15 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.4", LocalDate(2024, 5, 3)) {
+                    append(
+                        """
+                        - Added Input Mode configuration for writing practice, allowing to write characters instead of strokes
+                        - Removed practice type dialog on practice details screen, now it's togglable button
+                        - Small improvements in ranking of expressions and translations
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.3", LocalDate(2024, 3, 28)) {
                     append(
                         """
