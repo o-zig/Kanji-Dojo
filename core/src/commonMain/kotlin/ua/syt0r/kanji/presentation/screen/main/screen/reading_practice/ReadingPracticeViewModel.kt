@@ -125,7 +125,9 @@ class ReadingPracticeViewModel(
     }
 
     override fun toggleKanaAutoPlay() {
-        kanaVoiceAutoPlay.value = !kanaVoiceAutoPlay.value
+        val newValue = !kanaVoiceAutoPlay.value
+        kanaVoiceAutoPlay.value = newValue
+        viewModelScope.launch { userPreferencesRepository.kanaAutoPlay.set(newValue) }
     }
 
     override fun speakKana(reading: KanaReading) {
