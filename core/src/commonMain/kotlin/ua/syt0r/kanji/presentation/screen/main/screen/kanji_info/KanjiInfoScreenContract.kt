@@ -33,13 +33,11 @@ interface KanjiInfoScreenContract {
 
             abstract val character: String
             abstract val strokes: List<Path>
-            abstract val radicals: List<CharacterRadical>
             abstract val words: State<PaginatableJapaneseWordList>
 
             data class Kana(
                 override val character: String,
                 override val strokes: List<Path>,
-                override val radicals: List<CharacterRadical>,
                 override val words: State<PaginatableJapaneseWordList>,
                 val kanaSystem: CharacterClassification.Kana,
                 val reading: KanaReading,
@@ -48,7 +46,6 @@ interface KanjiInfoScreenContract {
             data class Kanji(
                 override val character: String,
                 override val strokes: List<Path>,
-                override val radicals: List<CharacterRadical>,
                 override val words: State<PaginatableJapaneseWordList>,
                 val on: List<String>,
                 val kun: List<String>,
@@ -56,7 +53,8 @@ interface KanjiInfoScreenContract {
                 val grade: Int?,
                 val jlptLevel: Int?,
                 val frequency: Int?,
-                val wanikaniLevel: Int?
+                val radicals: List<CharacterRadical>,
+                val displayRadicals: List<String>
             ) : Loaded()
 
         }

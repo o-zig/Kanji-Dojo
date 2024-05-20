@@ -78,7 +78,7 @@ fun KanjiInfoScreenUI(
     state: State<ScreenState>,
     onUpButtonClick: () -> Unit,
     onCopyButtonClick: () -> Unit,
-    onFuriganaItemClick: (String) -> Unit,
+    onCharacterClick: (String) -> Unit,
     onScrolledToBottom: () -> Unit
 ) {
 
@@ -172,7 +172,7 @@ fun KanjiInfoScreenUI(
                                 )
                             }
                         },
-                        onFuriganaItemClick = onFuriganaItemClick
+                        onCharacterClick = onCharacterClick
                     )
                 }
 
@@ -197,7 +197,7 @@ private fun LoadedState(
     listState: LazyListState,
     contentBottomPadding: State<Dp>,
     onCopyButtonClick: () -> Unit,
-    onFuriganaItemClick: (String) -> Unit
+    onCharacterClick: (String) -> Unit
 ) {
 
     val selectedWordForAlternativeDialog = rememberSaveable(stateSaver = jsonSaver()) {
@@ -207,7 +207,7 @@ private fun LoadedState(
         AlternativeWordsDialog(
             word = it,
             onDismissRequest = { selectedWordForAlternativeDialog.value = null },
-            onFuriganaClick = onFuriganaItemClick
+            onFuriganaClick = onCharacterClick
         )
     }
 
@@ -223,7 +223,8 @@ private fun LoadedState(
                 ) {
                     KanjiInfoCharacterInfoSection(
                         screenState = screenState,
-                        onCopyButtonClick = onCopyButtonClick
+                        onCopyButtonClick = onCopyButtonClick,
+                        onRadicalClick = onCharacterClick
                     )
                 }
             }
@@ -231,7 +232,7 @@ private fun LoadedState(
             wordsSection(
                 wordsState = screenState.words,
                 bottomPaddingState = contentBottomPadding,
-                onFuriganaItemClick = onFuriganaItemClick,
+                onFuriganaItemClick = onCharacterClick,
                 onWordClick = { selectedWordForAlternativeDialog.value = it }
             )
 
@@ -248,7 +249,8 @@ private fun LoadedState(
             ) {
                 KanjiInfoCharacterInfoSection(
                     screenState = screenState,
-                    onCopyButtonClick = onCopyButtonClick
+                    onCopyButtonClick = onCopyButtonClick,
+                    onRadicalClick = onCharacterClick
                 )
             }
 
@@ -260,7 +262,7 @@ private fun LoadedState(
                 wordsSection(
                     wordsState = screenState.words,
                     bottomPaddingState = contentBottomPadding,
-                    onFuriganaItemClick = onFuriganaItemClick,
+                    onFuriganaItemClick = onCharacterClick,
                     onWordClick = { selectedWordForAlternativeDialog.value = it }
                 )
             }

@@ -44,7 +44,6 @@ class KanjiInfoLoadDataUseCase(
         return ScreenState.Loaded.Kana(
             character = character,
             strokes = getStrokes(character),
-            radicals = getRadicals(character),
             words = getWords(character),
             kanaSystem = kanaInfo.classification,
             reading = kanaInfo.reading
@@ -60,12 +59,13 @@ class KanjiInfoLoadDataUseCase(
         val kunReadings = readings.filter { it.value == ReadingType.KUN }
             .map { it.key }
 
+        val radicals = getRadicals(character)
+
         val classifications = characterClassifier.get(character)
 
         return ScreenState.Loaded.Kanji(
             character = character,
             strokes = getStrokes(character),
-            radicals = getRadicals(character),
             words = getWords(character),
             meanings = appDataRepository.getMeanings(character),
             on = onReadings,
@@ -77,9 +77,8 @@ class KanjiInfoLoadDataUseCase(
                 ?.let { it as CharacterClassification.JLPT }
                 ?.level,
             frequency = kanjiData?.frequency,
-            wanikaniLevel = classifications.find { it is CharacterClassification.Wanikani }
-                ?.let { it as CharacterClassification.Wanikani }
-                ?.level
+            radicals = radicals,
+            displayRadicals = radicals.map { it.radical }.distinct()
         )
     }
 

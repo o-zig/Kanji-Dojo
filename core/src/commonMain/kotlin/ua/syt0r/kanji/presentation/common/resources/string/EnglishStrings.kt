@@ -563,7 +563,7 @@ object EnglishKanjiInfoStrings : KanjiInfoStrings {
     override val noRadicalsMessage: String = "No radicals"
     override val wordsSectionTitle: (count: Int) -> String = { "Expressions ($it)" }
     override val romajiMessage: (romaji: List<String>) -> String = {
-        "Romaji: ${it.joinToString()}"
+        "Romaji readings: ${it.joinToString()}"
     }
     override val gradeMessage: (grade: Int) -> String = {
         when {

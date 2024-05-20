@@ -5,12 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -31,22 +28,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ua.syt0r.kanji.presentation.common.resolveString
 import ua.syt0r.kanji.presentation.common.resources.icon.Copy
 import ua.syt0r.kanji.presentation.common.resources.icon.ExtraIcons
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
-import ua.syt0r.kanji.presentation.common.ui.AutoBreakRow
 import ua.syt0r.kanji.presentation.common.ui.kanji.AnimatedKanji
 import ua.syt0r.kanji.presentation.common.ui.kanji.KanjiBackground
 import ua.syt0r.kanji.presentation.common.ui.kanji.RadicalKanji
 import ua.syt0r.kanji.presentation.screen.main.screen.kanji_info.KanjiInfoScreenContract.ScreenState
 
 @Composable
-fun ColumnScope.KanjiInfoCharacterInfoSection(
+fun KanjiInfoCharacterInfoSection(
     screenState: ScreenState.Loaded,
-    onCopyButtonClick: () -> Unit
+    onCopyButtonClick: () -> Unit,
+    onRadicalClick: (String) -> Unit
 ) {
 
     when (screenState) {
@@ -62,12 +60,11 @@ fun ColumnScope.KanjiInfoCharacterInfoSection(
             KanjiInfo(
                 screenState = screenState,
                 onCopyButtonClick = onCopyButtonClick,
+                onRadicalClick = onRadicalClick,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             )
         }
     }
-
-    RadicalsSection(screenState)
 
 }
 
@@ -78,19 +75,24 @@ private fun KanaInfo(
     modifier: Modifier = Modifier
 ) {
 
-    Column(modifier) {
+    Column(
+        modifier = modifier
+    ) {
 
-        Row {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
             AnimatableCharacter(screenState.strokes)
 
-            Spacer(Modifier.width(16.dp))
-
-            Column(Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
 
                 Text(
                     text = screenState.kanaSystem.resolveString(),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.headlineSmall
                 )
 
                 val readings = screenState.reading.let {
@@ -100,7 +102,7 @@ private fun KanaInfo(
 
                 Text(
                     text = resolveString { kanjiInfo.romajiMessage(readings) },
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.headlineSmall
                 )
 
                 OutlinedIconButton(
@@ -117,23 +119,28 @@ private fun KanaInfo(
 
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun KanjiInfo(
     screenState: ScreenState.Loaded.Kanji,
     onCopyButtonClick: () -> Unit,
+    onRadicalClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    Column(modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
 
-        Row {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
             AnimatableCharacter(strokes = screenState.strokes)
 
-            Spacer(Modifier.width(16.dp))
-
-            Column(Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
 
                 screenState.grade?.let {
                     Text(
@@ -167,32 +174,29 @@ private fun KanjiInfo(
 
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
-
         if (screenState.meanings.isNotEmpty()) {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
-            ) {
-
-                screenState.meanings.forEach {
-                    Text(
-                        text = it,
-                        modifier = Modifier.align(Alignment.Bottom)
-                    )
-                }
-
-            }
+            Text(
+                text = screenState.meanings.joinToString(),
+                style = MaterialTheme.typography.headlineSmall
+            )
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
-
         if (screenState.kun.isNotEmpty())
-            ReadingRow(title = resolveString { kunyomi }, items = screenState.kun)
+            KanjiDataRow(
+                title = resolveString { kunyomi },
+                items = screenState.kun
+            )
 
         if (screenState.on.isNotEmpty())
-            ReadingRow(title = resolveString { onyomi }, items = screenState.on)
+            KanjiDataRow(
+                title = resolveString { onyomi },
+                items = screenState.on
+            )
+
+        RadicalsSection(
+            screenState = screenState,
+            onRadicalClick = onRadicalClick
+        )
 
     }
 
@@ -233,43 +237,46 @@ private fun AnimatableCharacter(strokes: List<Path>) {
 
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ReadingRow(
+private fun KanjiDataRow(
     title: String,
     items: List<String>
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(top = 8.dp)
         )
-        AutoBreakRow(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
+        FlowRow(
+            modifier = Modifier.weight(1f).align(Alignment.Bottom),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items.forEach {
                 Text(
                     text = it,
-                    modifier = Modifier
-                        .padding(top = 4.dp, end = 4.dp)
-                        .clip(MaterialTheme.shapes.small)
+                    modifier = Modifier.clip(MaterialTheme.shapes.small)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 8.dp, vertical = 4.dp),
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RadicalsSection(screenState: ScreenState.Loaded) {
+private fun RadicalsSection(
+    screenState: ScreenState.Loaded.Kanji,
+    onRadicalClick: (String) -> Unit,
+) {
 
     Text(
         text = resolveString { kanjiInfo.radicalsSectionTitle(screenState.radicals.size) },
@@ -304,23 +311,19 @@ private fun RadicalsSection(screenState: ScreenState.Loaded) {
             )
 
         } else {
-            AutoBreakRow(
+            FlowRow(
                 modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
 
-                screenState.radicals.forEach {
+                screenState.displayRadicals.forEach {
                     Text(
-                        text = it.radical,
+                        text = it,
                         fontSize = 32.sp,
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                RoundedCornerShape(6.dp)
-                            )
-                            .clickable {}
+                        modifier = Modifier.clip(MaterialTheme.shapes.small)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { onRadicalClick(it) }
                             .padding(8.dp)
                             .width(IntrinsicSize.Min)
                             .aspectRatio(1f, true)
