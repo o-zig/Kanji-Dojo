@@ -42,6 +42,17 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.5", LocalDate(2024, 5, 28)) {
+                    append(
+                        """
+                        - Added vocab practice, only predefined decks and reading picker mode for now
+                        - Clickable radicals on kanji details screen
+                        - Small updated to expressions ranking and reading priorities
+                        - Fix kana sound autoplay not saved on reading practice
+                        - Fix crash when pressing buttons on writing practice screen during animation
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.4", LocalDate(2024, 5, 3)) {
                     append(
                         """

@@ -1,0 +1,5 @@
+- Added vocab practice, only predefined decks and reading picker mode for now
+- Clickable radicals on kanji details screen
+- Small updated to expressions ranking and reading priorities
+- Fix kana sound autoplay not saved on reading practice
+- Fix crash when pressing buttons on writing practice screen during animation
