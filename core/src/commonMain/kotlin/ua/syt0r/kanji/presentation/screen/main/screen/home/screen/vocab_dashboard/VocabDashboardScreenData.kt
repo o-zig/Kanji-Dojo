@@ -18,7 +18,6 @@ val vocabDecks = listOf(
         titleResolver = { vocabDashboard.deckTitleTime },
         expressionIds = listOf(
             1315920,
-            1315840,
             2020680,
             1502840,
             1490430,
@@ -43,9 +42,7 @@ val vocabDecks = listOf(
             1542790,
             1536350,
             1362810,
-            1333520,
             1295310,
-            1507720,
             1289220,
             1548010
         )
@@ -53,7 +50,7 @@ val vocabDecks = listOf(
     VocabPracticeDeck(
         titleResolver = { vocabDashboard.deckTitleWeek },
         expressionIds = listOf(
-            1545770, 1255890, 1194290, 1372190, 1534890, 1243320, 1445590, 1464900
+            1545770, 1255890, 1194290, 1372190, 1534890, 1243320, 1445590, 1464900, 1507720, 1333520
         )
     ),
     VocabPracticeDeck(
@@ -215,7 +212,6 @@ val vocabDecks = listOf(
             1477950,
             1207560,
             1584160,
-            1584690,
             1207510,
             1387010
         )

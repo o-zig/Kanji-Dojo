@@ -249,13 +249,17 @@ class WritingPracticeViewModel(
     override fun loadNextCharacter(userAction: ReviewUserAction) {
         val currentState = reviewDataState.value
         val character = currentState.characterDetails.character
+
         val mistakes = when (currentState) {
             is WritingReviewState.MultipleStrokeInput -> currentState
-                .let { it.inputState.value as MultipleStrokeInputState.Processed }
-                .mistakes
+                .let { it.inputState.value as? MultipleStrokeInputState.Processed }
+                ?.mistakes
 
-            is WritingReviewState.SingleStrokeInput -> currentState.currentCharacterMistakes.value
-        }
+            is WritingReviewState.SingleStrokeInput -> currentState
+                .takeIf { it.drawnStrokesCount.value == it.characterDetails.strokes.size }
+                ?.currentCharacterMistakes
+                ?.value
+        } ?: return // Avoid handling quick multiple clicks on submit button during animation
 
         mistakesMap[character] = mistakesMap.getOrDefault(character, 0) + mistakes
 
