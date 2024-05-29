@@ -7,6 +7,7 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import ua.syt0r.kanji.core.japanese.CharacterClassification
 import ua.syt0r.kanji.presentation.screen.main.screen.about.AboutScreen
 import ua.syt0r.kanji.presentation.screen.main.screen.backup.BackupScreen
+import ua.syt0r.kanji.presentation.screen.main.screen.credits.CreditsScreen
 import ua.syt0r.kanji.presentation.screen.main.screen.feedback.FeedbackScreen
 import ua.syt0r.kanji.presentation.screen.main.screen.feedback.FeedbackTopic
 import ua.syt0r.kanji.presentation.screen.main.screen.home.HomeScreen
@@ -57,6 +58,16 @@ interface MainDestination {
             AboutScreen(
                 mainNavigationState = state
             )
+        }
+
+    }
+
+    @Serializable
+    object Credits : MainDestination {
+
+        @Composable
+        override fun Draw(state: MainNavigationState) {
+            CreditsScreen(state)
         }
 
     }
@@ -226,6 +237,7 @@ inline fun <reified T : MainDestination> KClass<T>.configuration(): MainDestinat
 
 val defaultMainDestinations: List<MainDestinationConfiguration<*>> = listOf(
     MainDestination.About::class.configuration(),
+    MainDestination.Credits::class.configuration(),
     MainDestination.Backup::class.configuration(),
     MainDestination.CreatePractice.EditExisting::class.configuration(),
     MainDestination.CreatePractice.Import::class.configuration(),

@@ -5,25 +5,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.parcelize")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
-project.gradle.taskGraph.whenReady {
-    allTasks.forEach { task ->
-
-        val isFdroid = task.name.contains("fdroid", ignoreCase = true)
-
-        val isGoogleTask = task.name.contains("GoogleServices", ignoreCase = true) ||
-                task.name.contains("Crashlytics", ignoreCase = true)
-
-        val isArtProfileTask = task.name.contains("ArtProfile", ignoreCase = true)
-
-        if (isFdroid && (isGoogleTask || isArtProfileTask)) {
-            println("Disabling f-droid task: ${task.name}")
-            task.enabled = false
-        }
-
-    }
-}
+adjustFlavorTasks()
 
 android {
 
@@ -117,4 +102,26 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.3")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
 
+}
+
+aboutLibraries { configPath = "core/credits" }
+
+fun adjustFlavorTasks() {
+    project.gradle.taskGraph.whenReady {
+        allTasks.forEach { task ->
+
+            val isFdroid = task.name.contains("fdroid", ignoreCase = true)
+
+            val isGoogleTask = task.name.contains("GoogleServices", ignoreCase = true) ||
+                    task.name.contains("Crashlytics", ignoreCase = true)
+
+            val isArtProfileTask = task.name.contains("ArtProfile", ignoreCase = true)
+
+            if (isFdroid && (isGoogleTask || isArtProfileTask)) {
+                println("Disabling f-droid task: ${task.name}")
+                task.enabled = false
+            }
+
+        }
+    }
 }

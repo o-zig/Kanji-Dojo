@@ -9,6 +9,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.codingfeline.buildkonfig")
     id("app.cash.sqldelight")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 kotlin {
@@ -33,6 +34,9 @@ kotlin {
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
+
+                api("com.mikepenz:aboutlibraries-core:11.2.0")
+                implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.0")
             }
         }
         val androidMain by getting {
@@ -169,6 +173,7 @@ buildkonfig {
     }
 }
 
+aboutLibraries { configPath = "core/credits" }
 
 // Desktop
 val prepareAssetsTaskDesktop = task<PrepareKanjiDojoAssetsTask>("prepareKanjiDojoAssetsDesktop") {

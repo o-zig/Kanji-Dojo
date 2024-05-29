@@ -1,0 +1,9 @@
+{
+  "uniqueId": "leeds",
+  "developers": [],
+  "name": "Frequency list by Leeds university",
+  "description": "Words ranking by frequency of usage in internet",
+  "licenses": [
+    "CC-BY-2.5"
+  ]
+}

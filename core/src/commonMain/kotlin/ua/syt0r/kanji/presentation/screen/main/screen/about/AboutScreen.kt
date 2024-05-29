@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import ua.syt0r.kanji.presentation.common.rememberUrlHandler
 import ua.syt0r.kanji.presentation.getMultiplatformViewModel
+import ua.syt0r.kanji.presentation.screen.main.MainDestination
 import ua.syt0r.kanji.presentation.screen.main.MainNavigationState
 
 
@@ -24,7 +25,8 @@ fun AboutScreen(
         openLink = { url ->
             urlHandler.openInBrowser(url)
             viewModel.reportUrlClick(url)
-        }
+        },
+        navigateToCredits = { mainNavigationState.navigate(MainDestination.Credits) }
     )
 
 }

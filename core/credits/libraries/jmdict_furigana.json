@@ -1,0 +1,9 @@
+{
+  "uniqueId": "JmdictFurigana",
+  "developers": [],
+  "name": "JmdictFurigana",
+  "description": "Open-source furigana resource to complement the EDICT/Jmdict and ENAMDICT/Jmnedict dictionary files",
+  "licenses": [
+    "CC-BY-SA-4.0"
+  ]
+}

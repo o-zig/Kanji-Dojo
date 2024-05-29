@@ -246,27 +246,10 @@ interface AboutStrings {
     val githubTitle: String
     val githubDescription: String
     val versionChangesTitle: String
+    val versionChangesDescription: String
     val versionChangesButton: String
     val creditsTitle: String
-    val licenseTemplate: (licenseText: String) -> String
-    val licenseKanjiVgTitle: String
-    val licenseKanjiVgDescription: String
-    val licenseKanjiDicTitle: String
-    val licenseKanjiDicDescription: String
-    val licenseTanosTitle: String
-    val licenseTanosDescription: String
-    val licenseJmDictTitle: String
-    val licenseJmDictDescription: String
-    val licenseJmDictFuriganaTitle: String
-    val licenseJmDictFuriganaDescription: String
-    val licenseLeedsCorpusTitle: String
-    val licenseLeedsCorpusDescription: String
-    val licenseWanakanaKtTitle: String
-    val licenseWanakanaKtDescription: String
-    val licenseCCASA3: String
-    val licenseCCASA4: String
-    val licenseCCBY: String
-    val licenseMIT: String
+    val creditsDescription: String
 }
 
 

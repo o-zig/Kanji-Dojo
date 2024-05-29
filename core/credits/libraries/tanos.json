@@ -1,0 +1,9 @@
+{
+  "uniqueId": "tanos",
+  "developers": [],
+  "name": "Tanos by Jonathan Waller",
+  "description": "Provides JLPT classification for kanji",
+  "licenses": [
+    "CC-BY-3.0"
+  ]
+}

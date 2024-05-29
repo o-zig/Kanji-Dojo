@@ -51,6 +51,10 @@ open class PrepareKanjiDojoAssetsTask : DefaultTask() {
                 Asset(
                     fileName = "icon.png",
                     url = null
+                ),
+                Asset(
+                    fileName = "aboutlibraries.json",
+                    url = null
                 )
             )
         )

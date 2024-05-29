@@ -1,0 +1,9 @@
+{
+  "uniqueId": "Kanji Dic",
+  "developers": [],
+  "name": "Kanji Dic",
+  "description": "Provides characters info, such as meanings, readings and classifications",
+  "licenses": [
+    "CC-BY-SA-3.0"
+  ]
+}

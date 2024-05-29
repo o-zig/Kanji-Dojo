@@ -9,6 +9,10 @@ import ua.syt0r.kanji.presentation.screen.main.screen.about.AboutScreenUI
 @Composable
 private fun Preview() {
     AppTheme {
-        AboutScreenUI()
+        AboutScreenUI(
+            onUpButtonClick = {},
+            openLink = {},
+            navigateToCredits = {}
+        )
     }
 }

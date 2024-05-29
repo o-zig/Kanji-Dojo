@@ -214,34 +214,11 @@ object JapaneseAboutStrings : AboutStrings {
     override val version: (versionName: String) -> String = { "バージョン: $it" }
     override val githubTitle: String = "プロジェクトのGitHubページ"
     override val versionChangesTitle: String = "変更履歴"
+    override val versionChangesDescription: String ="アプリの変更履歴"
     override val versionChangesButton: String = "閉じる"
     override val githubDescription: String = "ソースコード、バグ報告、議論"
     override val creditsTitle: String = "クレジット"
-    override val licenseTemplate: (String) -> String = { "ライセンス: $it" }
-    override val licenseKanjiVgTitle: String = "KanjiVG"
-    override val licenseKanjiVgDescription: String =
-        "字画、部首情報の提供"
-    override val licenseKanjiDicTitle: String = "Kanji Dic"
-    override val licenseKanjiDicDescription: String =
-        "字義や読み、等級などの文字情報の提供"
-    override val licenseTanosTitle: String = "Tanos by Jonathan Waller"
-    override val licenseTanosDescription: String = "漢字のJLPT等級の提供"
-    override val licenseJmDictTitle: String = "JMDict"
-    override val licenseJmDictDescription: String =
-        "日本語の多言語辞書、語句の提供"
-    override val licenseJmDictFuriganaTitle: String = "JmdictFurigana"
-    override val licenseJmDictFuriganaDescription: String =
-        "EDICT/JMdictおよびENAMDICT/JMnedictの辞書ファイル補完用のオープソース振り仮名リソース"
-    override val licenseLeedsCorpusTitle: String = "Frequency list by リーズ大学"
-    override val licenseLeedsCorpusDescription: String =
-        "インターネットにおける単語の頻出度ランキング"
-    override val licenseWanakanaKtTitle: String = EnglishAboutStrings.licenseWanakanaKtTitle
-    override val licenseWanakanaKtDescription: String =
-        "ひらがな、カタカナ、ローマ字を検出および音訳するための Kotlin ユーティリティ ライブラリ。WaniKani/WanaKana から移植"
-    override val licenseCCASA3: String = "クリエイティブ・コモンズ 表示-継承 3.0"
-    override val licenseCCASA4: String = "クリエイティブ・コモンズ 表示-継承 4.0"
-    override val licenseCCBY: String = "クリエイティブ・コモンズ 表示"
-    override val licenseMIT: String = EnglishAboutStrings.licenseMIT
+    override val creditsDescription: String = "使用されるライブラリとデータソース"
 }
 
 object JapaneseBackupStrings : BackupStrings {

@@ -234,41 +234,15 @@ object EnglishReminderDialogStrings : ReminderDialogStrings {
 }
 
 object EnglishAboutStrings : AboutStrings {
-
     override val title: String = "About"
     override val version: (versionName: String) -> String = { "Version: $it" }
     override val versionChangesTitle: String = "Version Changes"
+    override val versionChangesDescription: String = "App changes history"
     override val versionChangesButton: String = "Close"
-    override val githubTitle: String = "Project's GitHub Page"
+    override val githubTitle: String = "GitHub"
     override val githubDescription: String = "Source code, bug reports, discussions"
     override val creditsTitle: String = "Credits"
-    override val licenseTemplate: (String) -> String = { "License: $it" }
-    override val licenseKanjiVgTitle: String = "KanjiVG"
-    override val licenseKanjiVgDescription: String =
-        "Provides writing strokes, radicals information"
-    override val licenseKanjiDicTitle: String = "Kanji Dic"
-    override val licenseKanjiDicDescription: String =
-        "Provides characters info, such as meanings, readings and classifications"
-    override val licenseTanosTitle: String = "Tanos by Jonathan Waller"
-    override val licenseTanosDescription: String = "Provides JLPT classification for kanji"
-    override val licenseJmDictTitle: String = "JMDict"
-    override val licenseJmDictDescription: String =
-        "Japanese-Multilingual dictionary, provides expressions"
-    override val licenseJmDictFuriganaTitle: String = "JmdictFurigana"
-    override val licenseJmDictFuriganaDescription: String =
-        "Open-source furigana resource to complement the EDICT/JMdict and ENAMDICT/JMnedict dictionary files"
-    override val licenseLeedsCorpusTitle: String = "Frequency list by Leeds university"
-    override val licenseLeedsCorpusDescription: String =
-        "Words ranking by frequency of usage in internet"
-    override val licenseWanakanaKtTitle: String = "WanaKana Kt"
-    override val licenseWanakanaKtDescription: String =
-        "Kotlin utility library for detecting and transliterating Hiragana, Katakana, and Romaji. Ported from WaniKani/WanaKana"
-
-    override val licenseCCASA3: String = "Creative Commons Attribution-Share Alike 3.0"
-    override val licenseCCASA4: String = "Creative Commons Attribution-Share Alike 4.0"
-    override val licenseCCBY: String = "Creative Commons BY"
-    override val licenseMIT: String = "MIT"
-
+    override val creditsDescription: String = "Used libraries and data sources"
 }
 
 object EnglishBackupStrings : BackupStrings {
