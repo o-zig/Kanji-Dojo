@@ -42,6 +42,15 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.6", LocalDate(2024, 6, 14)) {
+                    append(
+                        """
+                        - Renamed practice sets, now they are referred as decks
+                        - Added option to create custom vocab decks
+                        - Added more into to app credits to include information about used libraries       
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.5", LocalDate(2024, 5, 28)) {
                     append(
                         """

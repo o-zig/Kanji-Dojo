@@ -1,0 +1,3 @@
+- Renamed practice sets, now they are referred as decks
+- Added option to create custom vocab decks
+- Added more into to app credits to include information about used libraries
