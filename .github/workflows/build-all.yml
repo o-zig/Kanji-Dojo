@@ -26,7 +26,7 @@ jobs:
           chmod +x gradlew
           echo $KEYSTORE | base64 --decode > keystore.jks
           ./gradlew app:assembleFdroidRelease
-          ./gradlew core:packageReleaseUberJarForCurrentOS
+          ./gradlew core:packageUberJarForCurrentOS
 
       - name: Upload Android Build
         uses: actions/upload-artifact@v4
@@ -56,7 +56,7 @@ jobs:
           cache: gradle
 
       - name: Build
-        run: ./gradlew core:packageReleaseUberJarForCurrentOS
+        run: ./gradlew core:packageUberJarForCurrentOS
 
       - name: Upload Desktop Build
         uses: actions/upload-artifact@v4
