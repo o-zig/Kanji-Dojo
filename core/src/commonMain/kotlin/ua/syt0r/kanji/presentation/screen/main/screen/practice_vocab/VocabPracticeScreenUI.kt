@@ -278,7 +278,7 @@ private fun ScreenReview(
                     val answerRows = currentState.answers.chunked(maxItemsInEachRow)
 
                     Column(
-                        modifier = Modifier.width(IntrinsicSize.Min)
+                        modifier = Modifier.width(IntrinsicSize.Max)
                     ) {
                         answerRows.forEach { rowAnswers ->
 

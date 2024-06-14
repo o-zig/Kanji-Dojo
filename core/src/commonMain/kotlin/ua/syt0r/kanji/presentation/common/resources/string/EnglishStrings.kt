@@ -229,6 +229,7 @@ object EnglishSettingsStrings : SettingsStrings {
     override val reminderTitle: String = "Reminder Notification"
     override val reminderEnabled: String = "Enabled"
     override val reminderDisabled: String = "Disabled"
+    override val feedbackTitle: String = "Feedback"
     override val backupTitle: String = "Backup & Restore"
     override val aboutTitle: String = "About"
 }

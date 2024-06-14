@@ -209,6 +209,7 @@ object JapaneseSettingsStrings : SettingsStrings {
     override val reminderTitle: String = "リマインダー通知"
     override val reminderEnabled: String = "有効"
     override val reminderDisabled: String = "無効"
+    override val feedbackTitle: String = "フィードバック"
     override val backupTitle: String = "バックアップ"
     override val aboutTitle: String = "このアプリについて"
 }

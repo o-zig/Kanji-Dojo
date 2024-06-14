@@ -233,7 +233,7 @@ interface SettingsStrings {
     val reminderTitle: String
     val reminderEnabled: String
     val reminderDisabled: String
-
+    val feedbackTitle: String
     val backupTitle: String
     val aboutTitle: String
 }
