@@ -206,13 +206,39 @@ interface MainDestination {
 
 }
 
-data class MainDestinationConfiguration<T : MainDestination>(
-    val clazz: KClass<T>,
-    val subclassRegisterer: (PolymorphicModuleBuilder<MainDestination>) -> Unit
-)
+sealed interface MainDestinationConfiguration<T : MainDestination> {
 
-inline fun <reified T : MainDestination> KClass<T>.configuration(): MainDestinationConfiguration<T> {
-    return MainDestinationConfiguration(
+    val clazz: KClass<T>
+    val subclassRegisterer: (PolymorphicModuleBuilder<MainDestination>) -> Unit
+
+    data class NoParams<T : MainDestination>(
+        val instance: T,
+        override val clazz: KClass<T>,
+        override val subclassRegisterer: (PolymorphicModuleBuilder<MainDestination>) -> Unit
+    ) : MainDestinationConfiguration<T>
+
+    data class WithArguments<T : MainDestination>(
+        override val clazz: KClass<T>,
+        override val subclassRegisterer: (PolymorphicModuleBuilder<MainDestination>) -> Unit
+    ) : MainDestinationConfiguration<T>
+
+}
+
+inline fun <reified T : MainDestination> T.configuration(): MainDestinationConfiguration.NoParams<T> {
+    return MainDestinationConfiguration.NoParams(
+        instance = this,
+        clazz = T::class,
+        subclassRegisterer = {
+            it.subclass(
+                subclass = T::class,
+                serializer = kotlinx.serialization.serializer()
+            )
+        }
+    )
+}
+
+inline fun <reified T : MainDestination> KClass<T>.configuration(): MainDestinationConfiguration.WithArguments<T> {
+    return MainDestinationConfiguration.WithArguments(
         clazz = this,
         subclassRegisterer = {
             it.subclass(
@@ -224,16 +250,16 @@ inline fun <reified T : MainDestination> KClass<T>.configuration(): MainDestinat
 }
 
 val defaultMainDestinations: List<MainDestinationConfiguration<*>> = listOf(
-    MainDestination.About::class.configuration(),
-    MainDestination.Credits::class.configuration(),
-    MainDestination.Backup::class.configuration(),
+    MainDestination.Home.configuration(),
+    MainDestination.Backup.configuration(),
+    MainDestination.About.configuration(),
+    MainDestination.Credits.configuration(),
+    MainDestination.LetterDeckPicker.configuration(),
+    MainDestination.LetterDeckDetails::class.configuration(),
     MainDestination.DeckEdit::class.configuration(),
     MainDestination.Feedback::class.configuration(),
-    MainDestination.Home::class.configuration(),
-    MainDestination.LetterDeckPicker::class.configuration(),
     MainDestination.KanjiInfo::class.configuration(),
     MainDestination.Practice.Reading::class.configuration(),
     MainDestination.Practice.Writing::class.configuration(),
     MainDestination.VocabPractice::class.configuration(),
-    MainDestination.LetterDeckDetails::class.configuration(),
 )

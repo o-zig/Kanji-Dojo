@@ -13,11 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.serialization.PolymorphicSerializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import ua.syt0r.kanji.core.logger.Logger
 import kotlin.reflect.KClass
 
 @Composable
@@ -33,70 +31,21 @@ actual fun MainNavigation(state: MainNavigationState) {
 
     NavHost(
         navController = state.navHostController,
-        startDestination = state.defaultDestination.getRoute(state.json)
+        startDestination = state.getRoute(state.defaultDestination::class)
     ) {
-
-        state.destinations.forEach { registerDestination(it.clazz, state) }
-
+        state.applyDestinations(this)
     }
-}
-
-private const val MainDestinationArgumentKey = "arg"
-
-private val <T : MainDestination> KClass<T>.routeTemplate: String
-    get() = "$simpleName/{$MainDestinationArgumentKey}"
-
-private val MainDestinationNavArgument = navArgument(MainDestinationArgumentKey) {
-    type = NavType.StringType
-}
-
-private fun MainDestination.getRoute(json: Json): String {
-    val uri = Uri.encode(
-        json.encodeToString(PolymorphicSerializer(MainDestination::class), this)
-    )
-    val route = "${this::class.simpleName}/$uri"
-    Logger.d("route[$route]")
-    return route
-}
-
-private fun NavGraphBuilder.registerDestination(
-    clazz: KClass<out MainDestination>,
-    state: AndroidMainNavigationState
-) {
-
-    composable(
-        route = clazz.routeTemplate,
-        arguments = listOf(MainDestinationNavArgument),
-        content = {
-            val destination = it.getDeserializedDestination(state.json) ?: state.defaultDestination
-            destination.Draw(state = state)
-        }
-    )
-
-}
-
-private fun NavBackStackEntry.getDeserializedDestination(json: Json): MainDestination? {
-    return arguments?.getString(MainDestinationArgumentKey)
-        ?.let { Uri.decode(it) }
-        ?.let {
-            Logger.d("decodingJson[$it]")
-            json.decodeFromString<MainDestination>(it)
-        }
 }
 
 @Immutable
 private class AndroidMainNavigationState(
     val navHostController: NavHostController,
-    val destinations: List<MainDestinationConfiguration<*>>
+    val configurations: List<MainDestinationConfiguration<*>>
 ) : MainNavigationState {
 
-    val json = Json {
-        serializersModule = SerializersModule {
-            polymorphic(MainDestination::class) {
-                destinations.forEach { it.subclassRegisterer.invoke(this) }
-            }
-        }
-    }
+    private val json: Json = getJsonWithSerializableDestinationsSupport()
+    private val clazzToConfiguration = configurations.associateBy { it.clazz }
+    private val routeToConfiguration = configurations.associateBy { getRoute(it.clazz) }
 
     val defaultDestination = MainDestination.Home
 
@@ -106,15 +55,86 @@ private class AndroidMainNavigationState(
 
     override fun popUpToHome() {
         navHostController.popBackStack(
-            route = MainDestination.Home::class.routeTemplate,
+            route = getRoute(MainDestination.Home::class),
             inclusive = false
         )
     }
 
     override fun navigate(destination: MainDestination) {
-        val route = destination.getRoute(json)
-        Logger.d("navigatingToRoute[$route]")
+        val route = getActualRoute(destination)
         navHostController.navigate(route)
+    }
+
+    fun applyDestinations(builder: NavGraphBuilder) {
+        configurations.forEach { builder.registerDestination(it) }
+    }
+
+    private fun getJsonWithSerializableDestinationsSupport(): Json {
+        return Json {
+            serializersModule = SerializersModule {
+                polymorphic(MainDestination::class) {
+                    configurations.forEach { it.subclassRegisterer.invoke(this) }
+                }
+            }
+        }
+    }
+
+    private fun NavGraphBuilder.registerDestination(configuration: MainDestinationConfiguration<*>) {
+        composable(
+            route = getRoute(configuration.clazz),
+            arguments = when (configuration) {
+                is MainDestinationConfiguration.NoParams -> emptyList()
+                is MainDestinationConfiguration.WithArguments -> listOf(
+                    serializedDestinationArgument
+                )
+            },
+            content = {
+                val destination = getDestination(it)
+                destination.Draw(this@AndroidMainNavigationState)
+            }
+        )
+    }
+
+    fun getRoute(clazz: KClass<out MainDestination>): String {
+        val configuration = clazzToConfiguration.getValue(clazz)
+        return when (configuration) {
+            is MainDestinationConfiguration.NoParams -> clazz.simpleName!!
+            is MainDestinationConfiguration.WithArguments -> "${clazz.simpleName}/{$DESTINATION_ARGUMENT_KEY}"
+        }
+    }
+
+    private fun getActualRoute(destination: MainDestination): String {
+        val configuration = clazzToConfiguration.getValue(destination::class)
+        if (configuration is MainDestinationConfiguration.NoParams)
+            return destination::class.simpleName!!
+
+        val uri = Uri.encode(
+            json.encodeToString(PolymorphicSerializer(MainDestination::class), destination)
+        )
+        return "${destination::class.simpleName}/$uri"
+    }
+
+    private fun getDestination(entry: NavBackStackEntry): MainDestination {
+        val route = entry.destination.route ?: getRoute(defaultDestination::class)
+        val configuration = routeToConfiguration.getValue(route)
+
+        if (configuration is MainDestinationConfiguration.NoParams) {
+            return configuration.instance
+        }
+
+        val serializedDestination = Uri.decode(
+            entry.arguments!!.getString(DESTINATION_ARGUMENT_KEY)!!
+        )
+        return json.decodeFromString<MainDestination>(serializedDestination)
+    }
+
+    companion object {
+        private const val DESTINATION_ARGUMENT_KEY = "arg"
+
+        private val serializedDestinationArgument = navArgument(
+            name = DESTINATION_ARGUMENT_KEY,
+            builder = { type = NavType.StringType }
+        )
     }
 
 }
