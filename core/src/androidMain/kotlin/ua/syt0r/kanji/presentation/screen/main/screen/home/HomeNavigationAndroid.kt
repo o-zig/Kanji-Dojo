@@ -1,5 +1,7 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.home
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -7,6 +9,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,15 +18,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import org.koin.androidx.compose.get
-import ua.syt0r.kanji.presentation.getMultiplatformViewModel
 import ua.syt0r.kanji.presentation.screen.main.MainNavigationState
 import ua.syt0r.kanji.presentation.screen.main.screen.home.data.HomeScreenTab
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.VocabDashboardScreen
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.letters_dashboard.LettersDashboardScreen
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.search.SearchScreen
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.settings.SettingsScreenContract
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.stats.StatsScreen
 
 @Composable
 actual fun rememberHomeNavigationState(): HomeNavigationState {
@@ -76,57 +72,24 @@ actual fun HomeNavigationContent(
 
     homeNavigationState as AndroidHomeNavigationState
 
-    val settingsScreenContent = get<SettingsScreenContract.Content>()
-
     NavHost(
         navController = homeNavigationState.navHostController,
-        startDestination = HomeScreenTab.Default.route
+        startDestination = HomeScreenTab.Default.route,
+        modifier = Modifier.fillMaxSize()
     ) {
 
-        composable(
-            route = HomeScreenTab.LettersDashboard.route,
-            content = {
-                LettersDashboardScreen(
-                    mainNavigationState = mainNavigationState,
-                    viewModel = getMultiplatformViewModel()
-                )
-            }
-        )
-
-        composable(
-            route = HomeScreenTab.Stats.route,
-            content = {
-                StatsScreen(
-                    viewModel = getMultiplatformViewModel()
-                )
-            }
-        )
-
-        composable(
-            route = HomeScreenTab.VocabDashboard.route,
-            content = {
-                VocabDashboardScreen(mainNavigationState = mainNavigationState)
-            }
-        )
-
-        composable(
-            route = HomeScreenTab.Search.route,
-            content = {
-                SearchScreen(
-                    mainNavigationState = mainNavigationState,
-                    viewModel = getMultiplatformViewModel()
-                )
-            }
-        )
-
-        composable(
-            route = HomeScreenTab.Settings.route,
-            content = {
-                settingsScreenContent.Draw(
-                    mainNavigationState = mainNavigationState
-                )
-            }
-        )
+        HomeScreenTab.values().forEach { tab ->
+            composable(
+                route = tab.route,
+                content = {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        tab.content(mainNavigationState)
+                    }
+                }
+            )
+        }
 
     }
 

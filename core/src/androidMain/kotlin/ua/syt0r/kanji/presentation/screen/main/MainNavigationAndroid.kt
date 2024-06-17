@@ -1,9 +1,12 @@
 package ua.syt0r.kanji.presentation.screen.main
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -31,7 +34,8 @@ actual fun MainNavigation(state: MainNavigationState) {
 
     NavHost(
         navController = state.navHostController,
-        startDestination = state.getRoute(state.defaultDestination::class)
+        startDestination = state.getRoute(state.defaultDestination::class),
+        modifier = Modifier.fillMaxSize()
     ) {
         state.applyDestinations(this)
     }
@@ -90,7 +94,9 @@ private class AndroidMainNavigationState(
             },
             content = {
                 val destination = getDestination(it)
-                destination.Draw(this@AndroidMainNavigationState)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    destination.Draw(this@AndroidMainNavigationState)
+                }
             }
         )
     }

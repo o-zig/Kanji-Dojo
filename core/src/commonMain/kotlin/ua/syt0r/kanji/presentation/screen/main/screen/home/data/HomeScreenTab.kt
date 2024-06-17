@@ -5,35 +5,64 @@ import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.FontWeight
+import org.koin.java.KoinJavaComponent.getKoin
 import ua.syt0r.kanji.presentation.common.resources.string.StringResolveScope
+import ua.syt0r.kanji.presentation.common.textDp
+import ua.syt0r.kanji.presentation.screen.main.MainNavigationState
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.letters_dashboard.LettersDashboardScreen
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.search.SearchScreen
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.settings.SettingsScreenContract
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.stats.StatsScreen
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.VocabDashboardScreen
 
 enum class HomeScreenTab(
     val iconContent: @Composable () -> Unit,
-    val titleResolver: StringResolveScope<String>
+    val titleResolver: StringResolveScope<String>,
+    val content: @Composable (MainNavigationState) -> Unit
 ) {
 
     LettersDashboard(
-        iconContent = { Text(text = "字", style = MaterialTheme.typography.titleMedium) },
+        iconContent = {
+            Text(
+                text = "字",
+                fontSize = 18.textDp,
+                fontWeight = FontWeight.Bold
+            )
+        },
         titleResolver = { home.lettersDashboardTabLabel },
+        content = { LettersDashboardScreen(mainNavigationState = it) }
     ),
     VocabDashboard(
-        iconContent = { Text(text = "語", style = MaterialTheme.typography.titleMedium) },
-        titleResolver = { home.vocabDashboardTabLabel }
+        iconContent = {
+            Text(
+                text = "語",
+                fontSize = 18.textDp,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        titleResolver = { home.vocabDashboardTabLabel },
+        content = { VocabDashboardScreen(mainNavigationState = it) }
     ),
     Stats(
         iconContent = { Icon(Icons.Default.QueryStats, null) },
-        titleResolver = { home.statsTabLabel }
+        titleResolver = { home.statsTabLabel },
+        content = { StatsScreen() }
     ),
     Search(
         iconContent = { Icon(Icons.Default.Search, null) },
-        titleResolver = { home.searchTabLabel }
+        titleResolver = { home.searchTabLabel },
+        content = { SearchScreen(mainNavigationState = it) }
     ),
     Settings(
         iconContent = { Icon(Icons.Outlined.Settings, null) },
-        titleResolver = { home.settingsTabLabel }
+        titleResolver = { home.settingsTabLabel },
+        content = {
+            val settingsScreenContent = getKoin().get<SettingsScreenContract.Content>()
+            settingsScreenContent.Draw(mainNavigationState = it)
+        }
     );
 
     companion object {

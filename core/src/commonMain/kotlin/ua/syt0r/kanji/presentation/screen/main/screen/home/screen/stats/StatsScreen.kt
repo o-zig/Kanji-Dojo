@@ -3,10 +3,11 @@ package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.stats
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import ua.syt0r.kanji.presentation.getMultiplatformViewModel
 
 @Composable
 fun StatsScreen(
-    viewModel: StatsScreenContract.ViewModel
+    viewModel: StatsScreenContract.ViewModel = getMultiplatformViewModel()
 ) {
 
     LaunchedEffect(Unit) {

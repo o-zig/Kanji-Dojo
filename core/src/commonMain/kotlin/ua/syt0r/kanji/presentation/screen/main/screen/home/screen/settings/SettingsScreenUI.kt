@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ButtonDefaults
@@ -48,8 +50,8 @@ fun SettingsContent(
             .fillMaxSize()
             .wrapContentWidth()
             .widthIn(max = 400.dp)
-            .padding(horizontal = 10.dp)
-            .padding(top = 4.dp, bottom = 16.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
     ) {
         content()
     }

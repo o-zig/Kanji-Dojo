@@ -1,25 +1,38 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.ui.LocalOrientation
@@ -40,19 +53,31 @@ fun HomeScreenUI(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            NavigationRail(
+            Column(
                 modifier = Modifier.fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .padding(20.dp)
+                    .width(IntrinsicSize.Max)
             ) {
-                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = resolveString { appName },
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 availableTabs.forEach { tab ->
-                    NavigationRailItem(
+                    HorizontalTabButton(
+                        tab = tab,
                         selected = tab == selectedTabState.value,
-                        onClick = { onTabSelected(tab) },
-                        icon = { tab.iconContent() },
-                        label = { Text(text = resolveString(tab.titleResolver)) }
+                        onClick = { onTabSelected(tab) }
                     )
                 }
+
                 Spacer(modifier = Modifier.weight(1f))
+
             }
 
             Surface { screenTabContent.invoke() }
@@ -63,7 +88,8 @@ fun HomeScreenUI(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = resolveString { home.screenTitle }) }
+                    title = { Text(text = resolveString { home.screenTitle }) },
+                    actions = { }
                 )
             },
             bottomBar = {
@@ -92,4 +118,35 @@ fun HomeScreenUI(
 
     }
 
+}
+
+@Composable
+private fun HorizontalTabButton(
+    tab: HomeScreenTab,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+            .let {
+                if (selected) it.background(MaterialTheme.colorScheme.surfaceVariant)
+                else it
+            }
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.size(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            tab.iconContent()
+        }
+        Text(
+            text = resolveString(tab.titleResolver),
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
 }
