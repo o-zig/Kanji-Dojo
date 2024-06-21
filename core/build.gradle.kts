@@ -173,7 +173,10 @@ buildkonfig {
     }
 }
 
-aboutLibraries { configPath = "core/credits" }
+aboutLibraries {
+    configPath = "core/credits"
+    excludeFields = arrayOf("generated")
+}
 
 // Desktop
 val prepareAssetsTaskDesktop = task<PrepareKanjiDojoAssetsTask>("prepareKanjiDojoAssetsDesktop") {

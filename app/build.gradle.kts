@@ -104,7 +104,10 @@ dependencies {
 
 }
 
-aboutLibraries { configPath = "core/credits" }
+aboutLibraries {
+    configPath = "core/credits"
+    excludeFields = arrayOf("generated")
+}
 
 fun adjustFlavorTasks() {
     project.gradle.taskGraph.whenReady {
