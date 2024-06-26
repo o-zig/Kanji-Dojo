@@ -42,6 +42,16 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.7", LocalDate(2024, 6, 27)) {
+                    append(
+                        """
+                        - Added more vocab practice modes
+                        - Small redesigns of home screen in landscape mode and bottom sheets
+                        - Fixed crash with multiple click on leave confirmation dialog
+                        - Added a sponsor screen and the option to financially support the app in the Google Play version
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.6", LocalDate(2024, 6, 14)) {
                     append(
                         """

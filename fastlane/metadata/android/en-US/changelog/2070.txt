@@ -1,0 +1,4 @@
+- Added more vocab practice modes
+- Small redesigns of home screen in landscape mode and bottom sheets
+- Fixed crash with multiple click on leave confirmation dialog
+- Added a sponsor screen and the option to financially support the app in the Google Play version
