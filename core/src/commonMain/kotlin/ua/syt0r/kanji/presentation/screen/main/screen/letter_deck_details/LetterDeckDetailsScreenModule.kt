@@ -2,8 +2,8 @@ package ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details
 
 import org.koin.dsl.module
 import ua.syt0r.kanji.presentation.multiplatformViewModel
-import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.CreatePracticeGroupsUseCase
-import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.DefaultCreatePracticeGroupsUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.LetterDeckDetailsCreatePracticeGroupsUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.DefaultLetterDeckDetailsCreatePracticeGroupsUseCase
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.DefaultGetLetterDeckDetailsConfigurationUseCase
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.DefaultGetLetterDeckDetailsVisibleDataUseCase
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.use_case.DefaultLetterDeckDetailsApplyFilterUseCase
@@ -50,8 +50,8 @@ val letterDeckDetailsScreenModule = module {
         )
     }
 
-    factory<CreatePracticeGroupsUseCase> {
-        DefaultCreatePracticeGroupsUseCase()
+    factory<LetterDeckDetailsCreatePracticeGroupsUseCase> {
+        DefaultLetterDeckDetailsCreatePracticeGroupsUseCase()
     }
 
     factory<LetterDeckDetailsApplyFilterUseCase> {

@@ -6,17 +6,19 @@ import androidx.compose.runtime.mutableStateOf
 import ua.syt0r.kanji.core.japanese.hiraganaToKatakana
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.CharacterReviewState
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.DeckDetailsListItem
+import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.DeckDetailsListItemKey
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.LetterDeckDetailsItemData
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.PracticeGroupSummary
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.PracticeType
 
-interface CreatePracticeGroupsUseCase {
+interface LetterDeckDetailsCreatePracticeGroupsUseCase {
 
     operator fun invoke(
         items: List<LetterDeckDetailsItemData>,
         visibleItems: List<LetterDeckDetailsItemData>,
         type: PracticeType,
         probeKanaGroups: Boolean,
+        previousSelectionStates: Map<DeckDetailsListItemKey, MutableState<Boolean>>?,
     ): PracticeGroupsCreationResult
 
 }
@@ -24,10 +26,11 @@ interface CreatePracticeGroupsUseCase {
 data class PracticeGroupsCreationResult(
     val kanaGroups: Boolean,
     val groups: List<DeckDetailsListItem.Group>,
-    val selectionStates: Map<DeckDetailsListItem, MutableState<Boolean>>,
+    val selectionStates: Map<DeckDetailsListItemKey, MutableState<Boolean>>,
 )
 
-class DefaultCreatePracticeGroupsUseCase : CreatePracticeGroupsUseCase {
+class DefaultLetterDeckDetailsCreatePracticeGroupsUseCase :
+    LetterDeckDetailsCreatePracticeGroupsUseCase {
 
     companion object {
         private const val CharactersInGroup = 6
@@ -68,6 +71,7 @@ class DefaultCreatePracticeGroupsUseCase : CreatePracticeGroupsUseCase {
         visibleItems: List<LetterDeckDetailsItemData>,
         type: PracticeType,
         probeKanaGroups: Boolean,
+        previousSelectionStates: Map<DeckDetailsListItemKey, MutableState<Boolean>>?,
     ): PracticeGroupsCreationResult {
 
         val itemsMap = items.associateBy { it.character }
@@ -95,11 +99,12 @@ class DefaultCreatePracticeGroupsUseCase : CreatePracticeGroupsUseCase {
             else -> visibleItems.chunked(CharactersInGroup) to false
         }
 
-        val selectionStates = mutableMapOf<DeckDetailsListItem, MutableState<Boolean>>()
+        val selectionStates = mutableMapOf<DeckDetailsListItemKey, MutableState<Boolean>>()
         val groups = chunkedGroups.mapIndexed { index, groupItems ->
             val selectionState = mutableStateOf(false)
             val group = createGroup(index, groupItems, type, selectionState)
-            selectionStates[group] = selectionState
+            previousSelectionStates?.get(group.key)?.value?.also { selectionState.value = it }
+            selectionStates[group.key] = selectionState
             group
         }
 

@@ -39,10 +39,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.ui.CustomRippleTheme
 import ua.syt0r.kanji.presentation.common.ui.MultiplatformPopup
@@ -58,6 +61,8 @@ import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.toColo
 private sealed interface SheetContentState {
 
     object Loading : SheetContentState
+
+    object NothingSelected : SheetContentState
 
     data class Loaded(
         val practiceType: PracticeType,
@@ -75,12 +80,12 @@ private fun State<ScreenState>.toSheetContentState(): State<SheetContentState> {
                 ?: return@derivedStateOf SheetContentState.Loading
 
             SheetContentState.Loaded(
-                currentState.visibleDataState.value.configuration.practiceType,
+                practiceType = currentState.visibleDataState.value.configuration.practiceType,
                 group = currentState.visibleDataState.value
                     .let { it as? DeckDetailsVisibleData.Groups }
                     ?.selectedItem
                     ?.value
-                    ?: return@derivedStateOf SheetContentState.Loading
+                    ?: return@derivedStateOf SheetContentState.NothingSelected
             )
 
         }
@@ -97,6 +102,7 @@ fun LetterDeckDetailsBottomSheet(
 ) {
 
     val sheetContentState = state.toSheetContentState()
+    SheetVisibilityAutoToggleLaunchedEffect(sheetContentState, onDismissRequest)
 
     Column(
         modifier = Modifier.animateContentSize(tween(100, easing = LinearEasing))
@@ -108,14 +114,14 @@ fun LetterDeckDetailsBottomSheet(
         )
 
         when (val currentState = sheetContentState.value) {
-            SheetContentState.Loading -> {
+            SheetContentState.Loading,
+            SheetContentState.NothingSelected -> {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
                         .wrapContentSize()
                 )
-                LaunchedEffect(Unit) { onDismissRequest() }
             }
 
             is SheetContentState.Loaded -> {
@@ -273,4 +279,16 @@ private fun PracticeGroupDetails(
 
     }
 
+}
+
+@Composable
+private fun SheetVisibilityAutoToggleLaunchedEffect(
+    state: State<SheetContentState>,
+    onDismissRequest: suspend () -> Unit,
+) {
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.value }
+            .filterIsInstance<SheetContentState.NothingSelected>()
+            .collectLatest { onDismissRequest() }
+    }
 }

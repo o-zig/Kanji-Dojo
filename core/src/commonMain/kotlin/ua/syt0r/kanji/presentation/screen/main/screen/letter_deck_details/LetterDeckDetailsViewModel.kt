@@ -19,6 +19,7 @@ import ua.syt0r.kanji.presentation.LifecycleState
 import ua.syt0r.kanji.presentation.screen.main.MainDestination
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.LetterDeckDetailsContract.ScreenState
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.DeckDetailsListItem
+import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.DeckDetailsListItemKey
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.DeckDetailsVisibleData
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.LetterDeckDetailsConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.letter_deck_details.data.MutableDeckDetailsVisibleData
@@ -41,8 +42,9 @@ class LetterDeckDetailsViewModel(
 
     private var practiceId: Long = -1L
     private val screenShownEvents = Channel<Unit>()
-    private lateinit var selectionStates: Map<DeckDetailsListItem, MutableState<Boolean>>
+
     private lateinit var loadedState: MutableLetterDeckDetailsLoadedState
+    private lateinit var selectionStates: Map<DeckDetailsListItemKey, MutableState<Boolean>>
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
     override val state: StateFlow<ScreenState> = _state
@@ -73,7 +75,9 @@ class LetterDeckDetailsViewModel(
             updateConfigurationUseCase(configuration)
             val result = getVisibleDataUseCase(
                 items = loadedState.allItems,
-                configuration = configuration
+                configuration = configuration,
+                currentVisibleData = loadedState.mutableVisibleDataState.value.asImmutable,
+                currentSelectionStates = selectionStates
             )
             selectionStates = result.selectionStates
             loadedState.mutableVisibleDataState.value = result.data
@@ -92,7 +96,7 @@ class LetterDeckDetailsViewModel(
     }
 
     override fun toggleSelection(item: DeckDetailsListItem) {
-        var mutableState by selectionStates.getValue(item)
+        var mutableState by selectionStates.getValue(item.key)
         mutableState = !mutableState
     }
 
@@ -161,11 +165,21 @@ class LetterDeckDetailsViewModel(
 
             is RefreshableData.Loaded -> {
                 val configuration = getConfigurationUseCase()
+                val currentVisibleData = when (::loadedState.isInitialized) {
+                    true -> loadedState.mutableVisibleDataState.value.asImmutable
+                    false -> null
+                }
+                val currentSelectionStates = when (::selectionStates.isInitialized) {
+                    true -> selectionStates
+                    false -> null
+                }
+
                 val visibleState = getVisibleDataUseCase(
                     items = value.items,
-                    configuration = configuration
+                    configuration = configuration,
+                    currentVisibleData = currentVisibleData,
+                    currentSelectionStates = currentSelectionStates
                 )
-                selectionStates = visibleState.selectionStates
 
                 loadedState = MutableLetterDeckDetailsLoadedState(
                     title = value.deckTitle,
@@ -173,6 +187,7 @@ class LetterDeckDetailsViewModel(
                     sharePractice = value.sharePractice,
                     mutableVisibleDataState = mutableStateOf(visibleState.data)
                 )
+                selectionStates = visibleState.selectionStates
 
                 _state.value = loadedState
             }

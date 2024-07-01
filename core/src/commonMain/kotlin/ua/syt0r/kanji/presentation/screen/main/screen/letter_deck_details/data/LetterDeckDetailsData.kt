@@ -81,13 +81,22 @@ data class PracticeItemSummary(
     val state: CharacterReviewState,
 )
 
+
+data class DeckDetailsListItemKey(
+    val value: Any
+)
+
 sealed interface DeckDetailsListItem {
+
+    val key: DeckDetailsListItemKey
     val selected: State<Boolean>
 
     data class Letter(
         val item: LetterDeckDetailsItemData,
         override val selected: State<Boolean>,
-    ) : DeckDetailsListItem
+    ) : DeckDetailsListItem {
+        override val key: DeckDetailsListItemKey = DeckDetailsListItemKey(item.character)
+    }
 
     data class Group(
         val index: Int,
@@ -95,7 +104,9 @@ sealed interface DeckDetailsListItem {
         val summary: PracticeGroupSummary,
         val reviewState: CharacterReviewState,
         override val selected: State<Boolean>,
-    ) : DeckDetailsListItem
+    ) : DeckDetailsListItem {
+        override val key: DeckDetailsListItemKey = DeckDetailsListItemKey(index)
+    }
 }
 
 data class PracticeGroupSummary(
