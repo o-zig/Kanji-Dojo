@@ -287,6 +287,8 @@ fun <T> PracticeConfigurationItemsSelector(
     state: PracticeConfigurationItemsSelectorState<T>
 ) {
 
+    val range = 1..state.items.size
+
     var shuffle by state.shuffleEnabled
     var resultList by state.sortedList
 
@@ -309,7 +311,7 @@ fun <T> PracticeConfigurationItemsSelector(
             value = selectedCharactersCountText,
             onValueChange = {
                 selectedCharactersCountText = it
-                it.toIntOrNull()?.also { selectedCharactersCount = it }
+                it.toIntOrNull()?.coerceIn(range)?.also { selectedCharactersCount = it }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.widthIn(min = 80.dp).alignByBaseline()
@@ -325,16 +327,15 @@ fun <T> PracticeConfigurationItemsSelector(
     ) {
 
         Text(text = 1.toString())
-        val range = 1f..state.items.size.toFloat()
 
         Slider(
-            value = selectedCharactersCount.toFloat().coerceIn(range),
+            value = selectedCharactersCount.coerceIn(range).toFloat(),
             onValueChange = {
                 selectedCharactersCount = it.toInt()
                 selectedCharactersCountText = it.toInt().toString()
             },
             steps = state.items.size,
-            valueRange = range,
+            valueRange = 1f..range.last.toFloat(),
             modifier = Modifier.weight(1f)
         )
 
