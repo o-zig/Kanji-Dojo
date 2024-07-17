@@ -40,6 +40,9 @@ fun KanjiReadingsContainer(
         },
         modifier = modifier
     ) { measurables, constraints ->
+        if (measurables.isEmpty()) {
+            return@Layout layout(0, 0) {}
+        }
 
         val horizontalSpacingPx = 8.dp.roundToPx()
         val verticalSpacingPx = 4.dp.roundToPx()
