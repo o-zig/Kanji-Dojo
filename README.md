@@ -1,80 +1,80 @@
-# Kanji Dojo
+<div align="center">
 
-<img src="preview_assets//inkscape_icon.svg" height=120 align="right">
+  <img src="preview_assets//inkscape_icon.svg" height=120 style="border-radius: 20px;">
 
-Learn & practice writing Japanese characters
+  # Kanji Dojo
+  ![Version Badge](https://img.shields.io/badge/version-v2.0.8-blue?style=for-the-badge&labelColor=ffffff&color=ff5555)
+
+</div>
+
+## Table of Contents
+- [About this app](#about-this-app)
+- [Screenshots](#screenshots)
+- [Downloads and Installation](#downloads)
+  * [Android](#android)
+  * [Desktop (Windows, Linux, MacOS)](#desktop)
+- [Version Comparison](#version-comparison)
+- [Contributions](#contributions)
+- [Technical Details](#technical-details)
+- [Credits](#credits)
+
+## About this app
+Practice writing Japanese letters, learn their meanings and related words 
 
 ### Features
-- Study **kana** (both Hiragana and Katakana) and kanji
-- Practice by following JLPT levels or school grades
-- Create your own list to study, <b>more than 6000 characters</b> in total are available
-- Works <b>offline</b>
+- Memorize how to write and read kana and kanji
+- Follow JLPT levels or school grades
+- Create your own decks to study, more than 6000 characters in total are available
+- Use SRS reviewing system to avoid forgetting learned information
+- Search letters and words with built-in dictionary
+- Study words with flashcards
+- Available modes to write words and pick correct letter readings
+- Works offline
 
-There is separate repository for dictionaries parser and data here: [Kanji-Dojo-Data](https://github.com/syt0r/Kanji-Dojo-Data)
+Repository with dictionary data and parsers here: [Kanji-Dojo-Data](https://github.com/syt0r/Kanji-Dojo-Data)
 
+## Screenshots
 <details>
-<summary><h3 style="display: inline">Screenshots</h3></summary>
+<summary>Toggle Spoiler</summary>
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" height="500"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" height="500"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" height="400"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" height="400"/>
 
 </details>
 
-### Downloads
+## Downloads
+### Android
+[![Play Store](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=ua.syt0r.kanji)
+[![F-Droid](https://img.shields.io/badge/F--Droid-1976D2?style=for-the-badge&logo=f-droid&logoColor=white)](https://f-droid.org/en/packages/ua.syt0r.kanji.fdroid/)
 
-#### Android
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/ua.syt0r.kanji.fdroid/)
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=ua.syt0r.kanji)
+1. Available in F-Droid,the same version is available in [GitHub Releases](https://github.com/syt0r/Kanji-Dojo/releases/latest)
+2. Google Play
 
-Or get the latest APK from the [Releases Section](https://github.com/syt0r/Kanji-Dojo/releases/latest).
+### Desktop
+1. Install Java 17 or higher for your platform
+2. Download jar from [Github Releases](https://github.com/syt0r/Kanji-Dojo/releases) for your platform
+3. Run downloaded jar with double click or use command ```java -jar <filename>.jar```
 
-#### Desktop
-To run the app install Java 17 or higher. Download jar from [Github Releases](https://github.com/syt0r/Kanji-Dojo/releases) for your platform, open it with double click or use command ```java -jar <filename>.jar```
+## Version comparison
+| Google Play                                                                         | F-Droid | Desktop |
+|-------------------------------------------------------------------------------------|---------|---------|
+| Firebase Analytics </br>Play services for in app review </br> Billing for donations | -       | -       |
 
-### Version comparison
-
-| Feature   | Fdroid | Google Play                  | Desktop |
-|-----------|--------|------------------------------|---------|
-| Analytics | -      | Firebase, enabled by default | -       |
-| Other     | -      | Play services in app review  | -       |
-
-### Contributing
+## Contributions
 - Pull-Requests are welcome!
-- Before making PR create and discuss the issue 
+- Before making PR create and discuss your issue
 - Use proper code formatting
 
-### Project details
-
-Used libraries: `Compose Multiplatform`, `Kotlin Coroutines`, `Koin`, `SqlDelight` 
-
-Most parts of the app are implemented in the `core` multiplatform module. The `app` module only contains some specific parts for the Fdroid and Google Play versions (flavors)
-
-Under the main package path there are 2 different packages: 
-* `core` - contains app's general logic for features like repositories, databases, app state managers and handlers
-* `presentation` - contains UI, navigation logic, screen specific logic and use cases
-
-Typically a feature under `core` package is placed in a separate package and consist of an interface and implementation. 
-
-The `presentation` package contains common UI and screen infrastructure. A single screen contains:
-* `<ScreenName>Contract` - an interface with screen's view model and screen state data
-* `<ScreenName>ViewModel` - handles screen's logic
-* `<ScreenName><Action>UseCase` - components that handle some specific action, invoked by view model
-* `<ScreenName>Screen` composable that handles navigation and communication between UI and view model
-* `<ScreenName>UI` - composable function that represents UI, it depends only on data so it can be covered by previews
-* `<ScreenName>Module` - a koin module that defines how to provide all screen specific components. 
-</br>**Note:** View models should be additionally registered in `androidViewModelModule` since on android they're additionally wrapped by a platform specific component
-* (Optional) `Content` interface for screens that can be replaced in flavors, like `SettingsScreenContract.Content`
-
-There is a single Koin's `module` for all features under `core` package, but there are also separate modules for a platform (`platformComponentsModule`) and flavor (`flavorModule`) specific features. All screens have their own koin modules
+### Technical details
+Used Libraries: `Compose Multiplatform`, `Kotlin Coroutines`, `Koin`, `SqlDelight`
 
 ### Credits
-
 * **KanjiVG**</br>
   Provides writing strokes, radicals information </br>
   License: Creative Commons Attribution-Share Alike 3.0</br>
@@ -101,7 +101,6 @@ There is a single Koin's `module` for all features under `core` package, but the
   Link: http://corpus.leeds.ac.uk/list.html
 
 ### License
-
 > (c) 2022-2023 Yaroslav Shuliak
 > 
 > This is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
