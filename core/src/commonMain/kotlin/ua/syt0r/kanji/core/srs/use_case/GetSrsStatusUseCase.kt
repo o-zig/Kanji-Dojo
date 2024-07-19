@@ -18,8 +18,8 @@ class DefaultGetSrsStatusUseCase(
         if (expectedReviewTime == null) return SrsItemStatus.New
 
         val timeZone = TimeZone.currentSystemDefault()
-        val currentDate = timeUtils.now().toLocalDateTime(timeZone)
-        val expectedReviewDate = expectedReviewTime.toLocalDateTime(timeZone)
+        val currentDate = timeUtils.now().toLocalDateTime(timeZone).date
+        val expectedReviewDate = expectedReviewTime.toLocalDateTime(timeZone).date
         return when {
             expectedReviewDate > currentDate -> SrsItemStatus.Done
             else -> SrsItemStatus.Review
