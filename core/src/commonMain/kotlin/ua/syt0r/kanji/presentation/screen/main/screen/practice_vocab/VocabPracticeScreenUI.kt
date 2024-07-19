@@ -66,6 +66,7 @@ import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.app_data.data.buildFuriganaString
 import ua.syt0r.kanji.core.srs.SrsCard
 import ua.syt0r.kanji.presentation.common.AutopaddedScrollableColumn
+import ua.syt0r.kanji.presentation.common.MultiplatformBackHandler
 import ua.syt0r.kanji.presentation.common.MultiplatformDialog
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
@@ -121,6 +122,8 @@ fun VocabPracticeScreenUI(
         if (isSafeToLeave) navigateBack()
         else showPracticeFinishDialog = true
     }
+
+    MultiplatformBackHandler(onBack = tryNavigateBack)
 
     Scaffold(
         topBar = { ScreenTopBar(navigateUp = tryNavigateBack, state = state) },
