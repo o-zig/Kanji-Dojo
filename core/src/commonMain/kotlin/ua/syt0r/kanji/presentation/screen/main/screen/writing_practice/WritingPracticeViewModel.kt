@@ -20,11 +20,10 @@ import ua.syt0r.kanji.core.user_data.practice.CharacterWritingReviewResult
 import ua.syt0r.kanji.core.user_data.practice.LetterPracticeRepository
 import ua.syt0r.kanji.core.user_data.preferences.PracticeUserPreferencesRepository
 import ua.syt0r.kanji.presentation.screen.main.MainDestination
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterInputState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterState
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.DefaultCharacterWriterState
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.MultipleStrokeInputContentState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeCharacterReviewResult
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeSavingResult
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.ReviewAction
@@ -162,16 +161,10 @@ class WritingPracticeViewModel(
     override fun loadNextCharacter(userAction: ReviewUserAction) {
         val character = characterWriterState.character
 
-        val mistakes = when (val inputState = characterWriterState.inputState) {
-            is CharacterInputState.MultipleStroke -> inputState
-                .let { it.contentState.value as? MultipleStrokeInputContentState.Processed }
-                ?.mistakes
-
-            is CharacterInputState.SingleStroke -> inputState
-                .takeIf { it.drawnStrokesCount.value == characterWriterState.strokes.size }
-                ?.totalMistakes
-                ?.value
-        } ?: return // Avoid handling quick multiple clicks on submit button during animation
+        val mistakes = characterWriterState.progress.value
+            .let { it as? CharacterWritingProgress.Completed }
+            ?.mistakes
+            ?: return // Avoid handling quick multiple clicks on submit button during animation
 
         mistakesMap[character] = mistakesMap.getOrDefault(character, 0) + mistakes
 

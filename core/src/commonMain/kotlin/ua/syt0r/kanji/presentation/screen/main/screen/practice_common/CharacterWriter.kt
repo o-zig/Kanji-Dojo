@@ -1,19 +1,11 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.practice_common
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,15 +15,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.drawscope.clipRect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -40,16 +29,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
-import ua.syt0r.kanji.presentation.common.resources.icon.ExtraIcons
-import ua.syt0r.kanji.presentation.common.resources.icon.Help
-import ua.syt0r.kanji.presentation.common.theme.snapToBiggerContainerCrossfadeTransitionSpec
 import ua.syt0r.kanji.presentation.common.ui.kanji.AnimatedStroke
 import ua.syt0r.kanji.presentation.common.ui.kanji.Kanji
-import ua.syt0r.kanji.presentation.common.ui.kanji.KanjiBackground
 import ua.syt0r.kanji.presentation.common.ui.kanji.Stroke
 import ua.syt0r.kanji.presentation.common.ui.kanji.StrokeInput
+import ua.syt0r.kanji.presentation.common.ui.kanji.StrokeWidth
 import ua.syt0r.kanji.presentation.common.ui.kanji.defaultStrokeColor
+import ua.syt0r.kanji.presentation.common.ui.kanji.drawKanjiStroke
 import ua.syt0r.kanji.presentation.common.ui.kanji.rememberStrokeInputState
 import kotlin.math.max
 
@@ -60,23 +46,28 @@ fun CharacterWriter(
 ) {
 
     Box(modifier) {
-        when (val inputState = state.inputState) {
+        when (val writerContent = state.content.value) {
 
-            is CharacterInputState.SingleStroke -> {
+            is CharacterWriterContent.SingleStrokeInput -> {
 
                 SingleStrokeInputContent(
                     strokes = state.strokes,
-                    inputState = inputState,
+                    inputState = writerContent,
                     onStrokeDrawn = { state.submit(it) }
                 )
 
             }
 
-            is CharacterInputState.MultipleStroke -> {
+            is CharacterWriterContent.MultipleStrokeInput -> {
                 MultipleStrokeInputContent(
-                    state = inputState,
+                    state = rememberUpdatedState(writerContent),
                 )
             }
+
+            is CharacterWriterContent.Animation -> {
+                AnimatedCharacter(state.strokes) { state.toggleAnimationState() }
+            }
+
         }
     }
 
@@ -84,13 +75,11 @@ fun CharacterWriter(
 
 @Composable
 private fun BoxScope.MultipleStrokeInputContent(
-    state: CharacterInputState.MultipleStroke
+    state: State<CharacterWriterContent.MultipleStrokeInput>
 ) {
 
-    val currentState = state.contentState.value
-
-    when (currentState) {
-        is MultipleStrokeInputContentState.Writing -> {
+    when (val currentState = state.value) {
+        is CharacterWriterContent.MultipleStrokeInput.Writing -> {
             var strokes by currentState.strokes
 
             Kanji(
@@ -104,19 +93,22 @@ private fun BoxScope.MultipleStrokeInputContent(
             )
         }
 
-        is MultipleStrokeInputContentState.Processing -> {
+        is CharacterWriterContent.MultipleStrokeInput.Processing -> {
             Kanji(
                 strokes = currentState.strokes,
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        is MultipleStrokeInputContentState.Processed -> {
+        is CharacterWriterContent.MultipleStrokeInput.Processed -> {
 
-            val lerpProgress = remember { Animatable(0f) }
+            val lerpProgress = remember {
+                Animatable(if (currentState.completedAnimation.value) 1f else 0f)
+            }
 
             LaunchedEffect(Unit) {
                 lerpProgress.animateTo(1f)
+                currentState.completedAnimation.value = true
             }
 
             currentState.strokeProcessingResults.forEach { strokeResult ->
@@ -148,7 +140,7 @@ private fun BoxScope.MultipleStrokeInputContent(
 @Composable
 private fun SingleStrokeInputContent(
     strokes: List<Path>,
-    inputState: CharacterInputState.SingleStroke,
+    inputState: CharacterWriterContent.SingleStrokeInput,
     onStrokeDrawn: (CharacterInputData.SingleStroke) -> Unit
 ) {
 
@@ -238,118 +230,11 @@ private fun SingleStrokeInputContent(
 
 }
 
-@Composable
-fun CharacterWriterDecorations(
-    modifier: Modifier,
-    state: State<CharacterWriterState?>,
-    content: @Composable BoxScope.() -> Unit
-) {
-    val inputShape = MaterialTheme.shapes.extraLarge
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = inputShape
-            )
-            .clip(inputShape)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onBackground,
-                shape = inputShape
-            )
-    ) {
-
-        KanjiBackground(Modifier.fillMaxSize())
-
-        content()
-
-        val hintButtonTransition = updateTransition(
-            targetState = derivedStateOf {
-                val writerState = state.value
-                val inputState = writerState?.inputState
-                    ?.let { it as? CharacterInputState.SingleStroke }
-                val writingStatus = writerState?.writingStatus?.value
-
-                inputState?.takeIf { writingStatus == CharacterWritingStatus.InProcess }
-            }.value
-        )
-
-        hintButtonTransition.AnimatedContent(
-            transitionSpec = snapToBiggerContainerCrossfadeTransitionSpec(),
-            modifier = Modifier.align(Alignment.TopEnd)
-        ) {
-            if (it == null) return@AnimatedContent
-
-            val coroutineScope = rememberCoroutineScope()
-            IconButton(
-                onClick = {
-                    coroutineScope.launch { it.notifyHintClick() }
-                }
-            ) {
-                Icon(ExtraIcons.Help, null)
-            }
-
-        }
-
-        val multipleStrokeButtonsTransition = updateTransition(
-            targetState = derivedStateOf {
-                val writerState = state.value
-                val multipleStrokesContentState = writerState?.inputState
-                    ?.let { it as? CharacterInputState.MultipleStroke }
-                    ?.contentState
-                    ?.value
-                writerState to multipleStrokesContentState
-            }.value
-        )
-
-        multipleStrokeButtonsTransition.AnimatedContent(
-            contentKey = { (_, contentState) -> contentState },
-            transitionSpec = snapToBiggerContainerCrossfadeTransitionSpec(),
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ) { (writerState, contentState) ->
-            if (contentState !is MultipleStrokeInputContentState.Writing) return@AnimatedContent
-
-            IconButton(
-                onClick = {
-                    writerState!!.submit(
-                        CharacterInputData.MultipleStrokes(
-                            characterStrokes = writerState.strokes,
-                            inputStrokes = contentState.strokes.value
-                        )
-                    )
-                }
-            ) {
-                Icon(Icons.Default.Check, null)
-            }
-        }
-
-        multipleStrokeButtonsTransition.AnimatedContent(
-            contentKey = { (_, contentState) -> contentState },
-            transitionSpec = snapToBiggerContainerCrossfadeTransitionSpec(),
-            modifier = Modifier.align(Alignment.BottomStart)
-        ) { (_, contentState) ->
-            if (contentState !is MultipleStrokeInputContentState.Writing) {
-                Box(Modifier)
-                return@AnimatedContent
-            }
-
-            IconButton(
-                onClick = {
-                    contentState.strokes.value = contentState.strokes.value.dropLast(1)
-                }
-            ) {
-                Icon(Icons.Default.Undo, null)
-            }
-        }
-
-    }
-}
 
 @Composable
 fun HintStroke(
     strokes: List<Path>,
-    inputState: CharacterInputState.SingleStroke,
+    inputState: CharacterWriterContent.SingleStrokeInput,
     hintClicksFlow: Flow<Unit>
 ) {
 
@@ -481,6 +366,59 @@ private fun StudyStroke(
             drawProgress = { strokeDrawProgress.value },
             strokeAlpha = { 0.5f }
         )
+    }
+
+}
+
+
+@Composable
+private fun AnimatedCharacter(
+    strokes: List<Path>,
+    onAnimationCompleted: () -> Unit
+) {
+
+    val strokesToDraw = remember { mutableStateOf(strokes) }
+    val lastStrokeAnimationProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        for (strokesCount in 1..strokes.size) {
+            val paths = strokes.subList(0, strokesCount)
+            strokesToDraw.value = paths
+
+            lastStrokeAnimationProgress.snapTo(0f)
+            lastStrokeAnimationProgress.animateTo(1f, tween(600))
+        }
+        onAnimationCompleted()
+    }
+
+    val strokeColor = defaultStrokeColor()
+
+    Canvas(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        clipRect {
+
+            val strokesList = strokesToDraw.value
+
+            strokesList.dropLast(1).forEach {
+                drawKanjiStroke(
+                    path = it,
+                    color = strokeColor,
+                    width = StrokeWidth
+                )
+            }
+
+            strokesList.lastOrNull()?.also {
+                drawKanjiStroke(
+                    path = it,
+                    color = strokeColor,
+                    width = StrokeWidth,
+                    drawProgress = lastStrokeAnimationProgress.value
+                )
+            }
+
+        }
     }
 
 }

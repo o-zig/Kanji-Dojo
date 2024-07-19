@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,10 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterInputState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriter
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterDecorations
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.MultipleStrokeInputContentState
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.writing_practice.ReviewUserAction
 import ua.syt0r.kanji.presentation.screen.main.screen.writing_practice.WritingReviewState
 
@@ -52,37 +53,40 @@ private sealed interface AnswerButtonsState {
     ) : AnswerButtonsState
 }
 
+@Composable
+private fun State<WritingReviewState>.toAnswerButtonsState(): State<AnswerButtonsState> = remember {
+    derivedStateOf {
 
-private fun State<WritingReviewState>.toAnswerButtonsState(): State<AnswerButtonsState> {
-    return derivedStateOf {
         val writerState = value.writerState
-        when (val writerInputState = writerState.inputState) {
-            is CharacterInputState.MultipleStroke -> {
-                val processed = writerInputState.contentState
-                    .value as? MultipleStrokeInputContentState.Processed
-                if (processed == null) {
-                    AnswerButtonsState.Hidden
-                } else {
+        val configuration = writerState.configuration
+        val progress = writerState.progress.value
+
+        when {
+
+            progress is CharacterWritingProgress.Completed.Animating -> AnswerButtonsState.Hidden
+
+            configuration is CharacterWriterConfiguration.CharacterInput -> {
+                if (progress is CharacterWritingProgress.Completed) {
                     AnswerButtonsState.Shown(
-                        showNextButton = processed.mistakes < CharacterMistakesToRepeat
-                    )
-                }
-            }
-
-            is CharacterInputState.SingleStroke -> {
-                val visible = writerInputState.run {
-                    drawnStrokesCount.value == writerState.strokes.size
-                }
-                if (visible) {
-                    if (writerInputState.isStudyMode) AnswerButtonsState.StudyButtonShown
-                    else AnswerButtonsState.Shown(
-                        showNextButton = writerInputState.totalMistakes.value < CharacterMistakesToRepeat
+                        showNextButton = progress.mistakes < CharacterMistakesToRepeat
                     )
                 } else {
                     AnswerButtonsState.Hidden
                 }
             }
 
+            configuration is CharacterWriterConfiguration.StrokeInput -> {
+                if (progress is CharacterWritingProgress.Completed) {
+                    if (configuration.isStudyMode) AnswerButtonsState.StudyButtonShown
+                    else AnswerButtonsState.Shown(
+                        showNextButton = progress.mistakes < CharacterMistakesToRepeat
+                    )
+                } else {
+                    AnswerButtonsState.Hidden
+                }
+            }
+
+            else -> throw IllegalStateException()
         }
     }
 }
@@ -96,7 +100,7 @@ fun WritingPracticeInputSection(
 
     CharacterWriterDecorations(
         modifier = modifier,
-        state = derivedStateOf { state.value.writerState }
+        state = remember { derivedStateOf { state.value.writerState } }
     ) {
 
         val transition = updateTransition(

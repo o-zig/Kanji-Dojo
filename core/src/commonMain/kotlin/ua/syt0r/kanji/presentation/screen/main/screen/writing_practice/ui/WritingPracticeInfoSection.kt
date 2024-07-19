@@ -65,9 +65,9 @@ import ua.syt0r.kanji.presentation.common.ui.kanji.Kanji
 import ua.syt0r.kanji.presentation.common.ui.kanji.KanjiReadingsContainer
 import ua.syt0r.kanji.presentation.common.ui.kanji.RadicalKanji
 import ua.syt0r.kanji.presentation.common.ui.kanji.getColoredKanjiStrokes
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterInputState
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterConfiguration
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.KanaVoiceAutoPlayToggle
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.MultipleStrokeInputContentState
 import ua.syt0r.kanji.presentation.screen.main.screen.writing_practice.WritingReviewCharacterDetails
 import ua.syt0r.kanji.presentation.screen.main.screen.writing_practice.WritingReviewState
 import kotlin.math.min
@@ -78,7 +78,7 @@ data class WritingPracticeInfoSectionData(
     val characterData: WritingReviewCharacterDetails,
     val kanaSoundAutoPlay: State<Boolean>,
     val isStudyMode: Boolean,
-    val isCharacterDrawn: Boolean,
+    val revealCharacter: Boolean,
     val shouldHighlightRadicals: Boolean,
     val isNoTranslationLayout: Boolean
 )
@@ -92,23 +92,25 @@ fun State<WritingReviewState>.asInfoSectionState(
     return remember {
         derivedStateOf {
             val writerState = value.writerState
-            when (val currentState = writerState.inputState) {
-                is CharacterInputState.MultipleStroke -> {
+            val revealCharacter = writerState.progress.value !is CharacterWritingProgress.Writing
+
+            when (val configuration = writerState.configuration) {
+                CharacterWriterConfiguration.CharacterInput -> {
                     WritingPracticeInfoSectionData(
                         characterData = value.characterDetails,
                         isStudyMode = false,
-                        isCharacterDrawn = currentState.contentState.value is MultipleStrokeInputContentState.Processed,
+                        revealCharacter = revealCharacter,
                         shouldHighlightRadicals = radicalsHighlight.value,
                         isNoTranslationLayout = noTranslationsLayout,
                         kanaSoundAutoPlay = kanaSoundAutoPlay
                     )
                 }
 
-                is CharacterInputState.SingleStroke -> {
+                is CharacterWriterConfiguration.StrokeInput -> {
                     WritingPracticeInfoSectionData(
                         characterData = value.characterDetails,
-                        isStudyMode = currentState.isStudyMode,
-                        isCharacterDrawn = currentState.drawnStrokesCount.value == writerState.strokes.size,
+                        isStudyMode = configuration.isStudyMode,
+                        revealCharacter = revealCharacter,
                         shouldHighlightRadicals = radicalsHighlight.value,
                         isNoTranslationLayout = noTranslationsLayout,
                         kanaSoundAutoPlay = kanaSoundAutoPlay
@@ -188,7 +190,7 @@ fun WritingPracticeInfoSection(
             }
 
             val expressions = data.characterData
-                .run { if (data.isStudyMode || data.isCharacterDrawn) words else encodedWords }
+                .run { if (data.isStudyMode || data.revealCharacter) words else encodedWords }
                 .takeIf { it.isNotEmpty() }
 
             if (expressions != null) {

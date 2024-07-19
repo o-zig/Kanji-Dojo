@@ -66,7 +66,7 @@ import ua.syt0r.kanji.presentation.common.ui.LocalOrientation
 import ua.syt0r.kanji.presentation.common.ui.Orientation
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriter
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterDecorations
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingStatus
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.ExpandableVocabPracticeAnswersRow
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.ExpandableVocabPracticeAnswersRowState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data.VocabCharacterWritingData
@@ -84,14 +84,21 @@ fun VocabPracticeWritingUI(
 
     AutoSwitchSelectedItemLaunchedEffect(reviewState)
 
-    val showNextButton = remember(reviewState) {
+    val revealAnswer = remember(reviewState) {
         derivedStateOf {
             reviewState.charactersData.filterIsInstance<VocabCharacterWritingData.WithStrokes>()
-                .all { it.writerState.writingStatus.value is CharacterWritingStatus.Completed }
+                .all { it.writerState.progress.value is CharacterWritingProgress.Completed }
         }
     }
 
-    val updatedState = rememberUpdatedState(showNextButton to answers)
+    val showAnswerButtons = remember(reviewState) {
+        derivedStateOf {
+            reviewState.charactersData.filterIsInstance<VocabCharacterWritingData.WithStrokes>()
+                .all { it.writerState.progress.value is CharacterWritingProgress.Completed.Idle }
+        }
+    }
+
+    val updatedState = rememberUpdatedState(showAnswerButtons to answers)
 
     val answersRowState = remember {
         derivedStateOf {
@@ -103,6 +110,8 @@ fun VocabPracticeWritingUI(
         }
     }
 
+    val selectedReviewState = rememberUpdatedState(reviewState.selected.value)
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -113,7 +122,7 @@ fun VocabPracticeWritingUI(
                     modifier = Modifier.fillMaxSize(),
                     bottomOverlayContent = {
                         Input(
-                            state = reviewState.selected,
+                            state = selectedReviewState,
                             answersState = answersRowState,
                             onNextClick = onNextClick,
                             modifier = Modifier.fillMaxWidth()
@@ -128,7 +137,7 @@ fun VocabPracticeWritingUI(
                     Progress(
                         reviewState = reviewState,
                         onWordClick = onWordClick,
-                        isNextButtonShown = showNextButton,
+                        revealAnswer = revealAnswer,
                         modifier = Modifier.fillMaxSize().padding(20.dp)
                     )
 
@@ -141,7 +150,7 @@ fun VocabPracticeWritingUI(
                     Progress(
                         reviewState = reviewState,
                         onWordClick = onWordClick,
-                        isNextButtonShown = showNextButton,
+                        revealAnswer = revealAnswer,
                         modifier = Modifier.weight(1f)
                             .fillMaxHeight()
                             .verticalScroll(rememberScrollState())
@@ -149,7 +158,7 @@ fun VocabPracticeWritingUI(
                     )
 
                     Input(
-                        state = reviewState.selected,
+                        state = selectedReviewState,
                         answersState = answersRowState,
                         onNextClick = onNextClick,
                         modifier = Modifier.weight(1f)
@@ -171,7 +180,7 @@ fun VocabPracticeWritingUI(
 @Composable
 private fun Progress(
     reviewState: VocabReviewState.Writing,
-    isNextButtonShown: State<Boolean>,
+    revealAnswer: State<Boolean>,
     onWordClick: (JapaneseWord) -> Unit,
     modifier: Modifier,
 ) {
@@ -205,7 +214,7 @@ private fun Progress(
 
         }
 
-        val detailsAlpha = if (isNextButtonShown.value) 1f else 0f
+        val detailsAlpha = if (revealAnswer.value) 1f else 0f
 
         TextButton(
             onClick = { onWordClick(reviewState.word) },
@@ -237,8 +246,10 @@ private fun Input(
 
     CharacterWriterDecorations(
         modifier = modifier,
-        state = derivedStateOf {
-            state.value.let { it as? VocabCharacterWritingData.WithStrokes }?.writerState
+        state = remember {
+            derivedStateOf {
+                state.value.let { it as? VocabCharacterWritingData.WithStrokes }?.writerState
+            }
         }
     ) {
 
@@ -283,12 +294,12 @@ private fun CharacterStateIndicator(
         }
 
         is VocabCharacterWritingData.WithStrokes -> {
-            when (val status = characterData.writerState.writingStatus.value) {
-                CharacterWritingStatus.InProcess -> {
+            when (val status = characterData.writerState.progress.value) {
+                CharacterWritingProgress.Writing -> {
                     CharacterWritingDisplayState.Writing
                 }
 
-                is CharacterWritingStatus.Completed -> {
+                is CharacterWritingProgress.Completed -> {
                     if (status.isCorrect) CharacterWritingDisplayState.Correct
                     else CharacterWritingDisplayState.Failed
                 }
@@ -366,15 +377,16 @@ private fun AutoSwitchSelectedItemLaunchedEffect(reviewState: VocabReviewState.W
                 if (state !is VocabCharacterWritingData.WithStrokes)
                     return@flatMapLatest flow<Int> { }
 
-                val writingStatusFlow = snapshotFlow { state.writerState.writingStatus.value }
-                writingStatusFlow.filterIsInstance<CharacterWritingStatus.Completed>().map { index }
+                val writingStatusFlow = snapshotFlow { state.writerState.progress.value }
+                writingStatusFlow.filterIsInstance<CharacterWritingProgress.Completed>()
+                    .map { index }
             }
             .onEach { index ->
                 completedItemIndexes.add(index)
                 delay(800)
                 val nextState = reviewState.charactersData
                     .filterIsInstance<VocabCharacterWritingData.WithStrokes>()
-                    .find { it.writerState.writingStatus.value !is CharacterWritingStatus.Completed }
+                    .find { it.writerState.progress.value !is CharacterWritingProgress.Completed }
                     ?: return@onEach
                 reviewState.selected.value = nextState
             }

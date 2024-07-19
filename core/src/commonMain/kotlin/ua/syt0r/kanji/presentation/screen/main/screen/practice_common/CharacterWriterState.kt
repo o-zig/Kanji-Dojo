@@ -19,11 +19,12 @@ interface CharacterWriterState {
 
     val character: String
     val strokes: List<Path>
-    val inputState: CharacterInputState
-    val writingStatus: State<CharacterWritingStatus>
+    val configuration: CharacterWriterConfiguration
+    val content: State<CharacterWriterContent>
+    val progress: State<CharacterWritingProgress>
 
     fun submit(inputData: CharacterInputData)
-    fun notifyHintClick()
+    fun toggleAnimationState()
 
 }
 
@@ -63,9 +64,9 @@ sealed interface StrokeProcessingResult {
 
 }
 
-sealed interface CharacterInputState {
+sealed interface CharacterWriterContent {
 
-    interface SingleStroke : CharacterInputState {
+    interface SingleStrokeInput : CharacterWriterContent {
 
         val isStudyMode: Boolean
         val drawnStrokesCount: State<Int>
@@ -78,51 +79,66 @@ sealed interface CharacterInputState {
 
     }
 
-    sealed interface MultipleStroke : CharacterInputState {
-        val contentState: State<MultipleStrokeInputContentState>
+    sealed interface MultipleStrokeInput : CharacterWriterContent {
+
+        data class Writing(
+            val strokes: MutableState<List<Path>>
+        ) : MultipleStrokeInput
+
+        data class Processing(
+            val strokes: List<Path>
+        ) : MultipleStrokeInput
+
+        data class Processed(
+            val strokeProcessingResults: List<StrokeProcessingResult>,
+            val mistakes: Int,
+            val completedAnimation: MutableState<Boolean>
+        ) : MultipleStrokeInput
+
     }
 
-}
-
-sealed interface MultipleStrokeInputContentState {
-
-    data class Writing(
-        val strokes: MutableState<List<Path>>
-    ) : MultipleStrokeInputContentState
-
-    data class Processing(
-        val strokes: List<Path>
-    ) : MultipleStrokeInputContentState
-
-    data class Processed(
-        val strokeProcessingResults: List<StrokeProcessingResult>,
-        val mistakes: Int
-    ) : MultipleStrokeInputContentState
+    data class Animation(
+        val previousState: CharacterWriterContent
+    ) : CharacterWriterContent
 
 }
 
-private data class MutableSingleStrokeInputState(
+private data class MutableSingleStrokeInputWriterContent(
     override val isStudyMode: Boolean,
     override val drawnStrokesCount: MutableState<Int>,
     override val currentStrokeMistakes: MutableState<Int>,
     override val totalMistakes: MutableState<Int>,
     override val hintClicksSharedFlow: MutableSharedFlow<Unit>,
     override val inputProcessingResults: MutableSharedFlow<StrokeProcessingResult>
-) : CharacterInputState.SingleStroke {
+) : CharacterWriterContent.SingleStrokeInput {
 
     override suspend fun notifyHintClick() {
+        currentStrokeMistakes.value += 1
+        totalMistakes.value += 1
         hintClicksSharedFlow.emit(Unit)
     }
 
 }
 
-private data class MutableMultiStrokeInputState(
-    override val contentState: MutableState<MultipleStrokeInputContentState>
-) : CharacterInputState.MultipleStroke
+sealed interface CharacterWritingProgress {
 
-sealed interface CharacterWritingStatus {
-    object InProcess : CharacterWritingStatus
-    data class Completed(val isCorrect: Boolean, val mistakes: Int) : CharacterWritingStatus
+    object Writing : CharacterWritingProgress
+
+    sealed interface Completed : CharacterWritingProgress {
+        val isCorrect: Boolean
+        val mistakes: Int
+
+        data class Idle(
+            override val isCorrect: Boolean,
+            override val mistakes: Int
+        ) : Completed
+
+        data class Animating(
+            override val isCorrect: Boolean,
+            override val mistakes: Int
+        ) : Completed
+    }
+
 }
 
 class DefaultCharacterWriterState(
@@ -130,46 +146,40 @@ class DefaultCharacterWriterState(
     private val strokeEvaluator: KanjiStrokeEvaluator,
     override val character: String,
     override val strokes: List<Path>,
-    private val configuration: CharacterWriterConfiguration
+    override val configuration: CharacterWriterConfiguration
 ) : CharacterWriterState {
 
-    override val inputState: CharacterInputState = createInputState()
+    private val _content = mutableStateOf(createInputState())
+    override val content: State<CharacterWriterContent> = _content
 
-    override val writingStatus: State<CharacterWritingStatus> = derivedStateOf {
-        when (inputState) {
-            is CharacterInputState.MultipleStroke -> inputState.toWritingStatus()
-            is CharacterInputState.SingleStroke -> inputState.toWritingStatus()
-        }
+    override val progress: State<CharacterWritingProgress> = derivedStateOf {
+        content.value.toWritingProgress()
     }
 
     override fun submit(inputData: CharacterInputData) = coroutineScope.launchUnit {
         when (inputData) {
             is CharacterInputData.SingleStroke -> {
-                handleSingleStrokeInput(
-                    inputData = inputData,
-                    mutableState = inputState as MutableSingleStrokeInputState
-                )
+                handleSingleStrokeInput(inputData)
             }
 
             is CharacterInputData.MultipleStrokes -> {
-                handleMultipleStrokeInput(
-                    inputData = inputData,
-                    inputState = inputState as MutableMultiStrokeInputState
-                )
+                handleMultipleStrokeInput(inputData)
             }
         }
     }
 
-    override fun notifyHintClick() {
-        inputState as MutableSingleStrokeInputState
-        inputState.currentStrokeMistakes.value++
-        inputState.totalMistakes.value++
+    override fun toggleAnimationState() {
+        val currentContent = content.value
+        _content.value = when (currentContent) {
+            is CharacterWriterContent.Animation -> currentContent.previousState
+            else -> CharacterWriterContent.Animation(currentContent)
+        }
     }
 
-    private fun createInputState(): CharacterInputState {
+    private fun createInputState(): CharacterWriterContent {
         return when (configuration) {
             is CharacterWriterConfiguration.StrokeInput -> {
-                MutableSingleStrokeInputState(
+                MutableSingleStrokeInputWriterContent(
                     isStudyMode = configuration.isStudyMode,
                     drawnStrokesCount = mutableStateOf(0),
                     currentStrokeMistakes = mutableStateOf(0),
@@ -180,10 +190,8 @@ class DefaultCharacterWriterState(
             }
 
             CharacterWriterConfiguration.CharacterInput -> {
-                MutableMultiStrokeInputState(
-                    contentState = mutableStateOf(
-                        MultipleStrokeInputContentState.Writing(strokes = mutableStateOf(emptyList()))
-                    )
+                CharacterWriterContent.MultipleStrokeInput.Writing(
+                    strokes = mutableStateOf(emptyList())
                 )
             }
         }
@@ -191,8 +199,9 @@ class DefaultCharacterWriterState(
 
     private suspend fun handleSingleStrokeInput(
         inputData: CharacterInputData.SingleStroke,
-        mutableState: MutableSingleStrokeInputState
     ) {
+        val mutableState = content.value as MutableSingleStrokeInputWriterContent
+
         val isDrawnCorrectly = withContext(Dispatchers.IO) {
             strokeEvaluator.areStrokesSimilar(inputData.kanjiPath, inputData.userPath)
         }
@@ -218,11 +227,11 @@ class DefaultCharacterWriterState(
     }
 
     private suspend fun handleMultipleStrokeInput(
-        inputData: CharacterInputData.MultipleStrokes,
-        inputState: MutableMultiStrokeInputState
+        inputData: CharacterInputData.MultipleStrokes
     ) {
-        val contentState = inputState.contentState
-        contentState.value = MultipleStrokeInputContentState.Processing(inputData.inputStrokes)
+        _content.value = CharacterWriterContent.MultipleStrokeInput.Processing(
+            strokes = inputData.inputStrokes
+        )
 
         val processedState = withContext(Dispatchers.IO) {
             val strokesCount = max(inputData.characterStrokes.size, inputData.inputStrokes.size)
@@ -244,35 +253,49 @@ class DefaultCharacterWriterState(
                 }
             }
 
-            MultipleStrokeInputContentState.Processed(
+            CharacterWriterContent.MultipleStrokeInput.Processed(
                 strokeProcessingResults = results.take(inputData.characterStrokes.size),
-                mistakes = results.count { it is StrokeProcessingResult.Mistake }
+                mistakes = results.count { it is StrokeProcessingResult.Mistake },
+                completedAnimation = mutableStateOf(false)
             )
         }
 
-        contentState.value = processedState
+        _content.value = processedState
     }
 
-    private fun CharacterInputState.MultipleStroke.toWritingStatus(): CharacterWritingStatus {
-        return when (val currentState = contentState.value) {
-            is MultipleStrokeInputContentState.Writing,
-            is MultipleStrokeInputContentState.Processing -> CharacterWritingStatus.InProcess
+    private fun CharacterWriterContent.toWritingProgress(): CharacterWritingProgress {
+        return when (this) {
+            is CharacterWriterContent.SingleStrokeInput -> {
+                when (drawnStrokesCount.value == strokes.size) {
+                    false -> CharacterWritingProgress.Writing
+                    true -> {
+                        val mistakes = totalMistakes.value
+                        CharacterWritingProgress.Completed.Idle(
+                            isCorrect = isResultCorrect(mistakes),
+                            mistakes = mistakes
+                        )
+                    }
+                }
+            }
 
-            is MultipleStrokeInputContentState.Processed -> CharacterWritingStatus.Completed(
-                isCorrect = isResultCorrect(currentState.mistakes),
-                mistakes = currentState.mistakes
-            )
-        }
-    }
+            is CharacterWriterContent.MultipleStrokeInput.Writing,
+            is CharacterWriterContent.MultipleStrokeInput.Processing -> {
+                CharacterWritingProgress.Writing
+            }
 
-    private fun CharacterInputState.SingleStroke.toWritingStatus(): CharacterWritingStatus {
-        return when (drawnStrokesCount.value == strokes.size) {
-            false -> CharacterWritingStatus.InProcess
-            true -> {
-                val mistakes = totalMistakes.value
-                CharacterWritingStatus.Completed(
+            is CharacterWriterContent.MultipleStrokeInput.Processed -> {
+                CharacterWritingProgress.Completed.Idle(
                     isCorrect = isResultCorrect(mistakes),
                     mistakes = mistakes
+                )
+            }
+
+            is CharacterWriterContent.Animation -> {
+                val completedProgress = previousState.toWritingProgress()
+                completedProgress as CharacterWritingProgress.Completed
+                CharacterWritingProgress.Completed.Animating(
+                    isCorrect = completedProgress.isCorrect,
+                    mistakes = completedProgress.mistakes
                 )
             }
         }
