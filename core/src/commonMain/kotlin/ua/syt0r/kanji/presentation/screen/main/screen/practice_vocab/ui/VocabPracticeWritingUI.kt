@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -193,7 +194,8 @@ private fun Progress(
 
         Text(
             text = reviewState.word.meanings.first(),
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.displaySmall,
+            textAlign = TextAlign.Center
         )
 
         val lazyListState = rememberLazyListState()
@@ -270,10 +272,9 @@ private fun Input(
         ExpandableVocabPracticeAnswersRow(
             state = answersState,
             onClick = onNextClick,
-            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)
-                .align(Alignment.BottomCenter),
-            contentModifier = Modifier.padding(20.dp).clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.surface)
+            modifier = Modifier.fillMaxWidth()
+                .height(IntrinsicSize.Max)
+                .align(Alignment.BottomCenter)
         )
 
     }

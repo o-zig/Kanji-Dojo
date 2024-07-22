@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,10 +37,12 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.FuriganaString
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.srs.SrsCard
+import ua.syt0r.kanji.core.theme_manager.LocalThemeManager
 import ua.syt0r.kanji.presentation.common.AutopaddedScrollableColumn
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.neutralTextButtonColors
@@ -63,6 +66,11 @@ fun VocabPracticeFlashcardUI(
             .widthIn(max = 400.dp),
         bottomOverlayContent = {
 
+            val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
+                true -> Modifier
+                false -> Modifier.shadow(10.dp, MaterialTheme.shapes.medium)
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,14 +80,17 @@ fun VocabPracticeFlashcardUI(
                     .padding(vertical = 20.dp)
             ) {
 
-                val hiddenButton = @Composable {
+                val hiddenButton = @Composable { isVisible: Boolean ->
                     val focusRequester = remember { FocusRequester() }
                     LaunchedEffect(Unit) { focusRequester.requestFocus() }
                     Text(
                         text = "Show answer",
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)
+                        modifier = Modifier.fillMaxSize()
+                            .graphicsLayer { if (!isVisible) alpha = 0f }
+                            .padding(horizontal = 20.dp)
+                            .then(themeModifier)
                             .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(MaterialTheme.colorScheme.surface)
                             .focusable()
                             .focusRequester(focusRequester)
                             .onKeyEvent {
@@ -94,14 +105,14 @@ fun VocabPracticeFlashcardUI(
                 }
 
                 val revealedButton = @Composable { isVisible: Boolean ->
-                    val alphaValue = if (isVisible) 1f else 0f
                     VocabPracticeAnswersRow(
                         answers = answers,
                         onClick = { if (isVisible) onNextClick(it) },
-                        contentModifier = Modifier.padding(horizontal = 20.dp)
+                        contentModifier = Modifier
+                            .graphicsLayer { if (!isVisible) alpha = 0f }
+                            .padding(horizontal = 20.dp)
+                            .then(themeModifier)
                             .background(MaterialTheme.colorScheme.surface)
-                            .clip(MaterialTheme.shapes.medium)
-                            .graphicsLayer { alpha = alphaValue }
                     )
                 }
 
@@ -109,11 +120,11 @@ fun VocabPracticeFlashcardUI(
                 when (reviewState.showAnswer.value) {
                     false -> {
                         revealedButton(false)
-                        hiddenButton()
+                        hiddenButton(true)
                     }
 
                     true -> {
-                        hiddenButton()
+                        hiddenButton(false)
                         revealedButton(true)
                     }
                 }
@@ -126,7 +137,8 @@ fun VocabPracticeFlashcardUI(
         val meaningUI = @Composable {
             Text(
                 text = reviewState.meaning,
-                style = MaterialTheme.typography.displaySmall
+                style = MaterialTheme.typography.displaySmall,
+                textAlign = TextAlign.Center
             )
         }
 

@@ -51,9 +51,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -65,6 +68,7 @@ import kotlinx.datetime.Clock
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.app_data.data.buildFuriganaString
 import ua.syt0r.kanji.core.srs.SrsCard
+import ua.syt0r.kanji.core.theme_manager.LocalThemeManager
 import ua.syt0r.kanji.presentation.common.AutopaddedScrollableColumn
 import ua.syt0r.kanji.presentation.common.MultiplatformBackHandler
 import ua.syt0r.kanji.presentation.common.MultiplatformDialog
@@ -445,6 +449,7 @@ fun VocabPracticeAnswersRow(
     Row(
         modifier = modifier.horizontalScroll(rememberScrollState())
             .then(contentModifier)
+            .clip(MaterialTheme.shapes.medium)
             .then(keyboardControlsModifier)
             .width(IntrinsicSize.Max)
             .height(IntrinsicSize.Max),
@@ -454,27 +459,29 @@ fun VocabPracticeAnswersRow(
             srsCard = answers.again,
             label = resolveString { vocabPractice.againButton },
             onClick = onClick,
-            modifier = Modifier.background(MaterialTheme.colorScheme.error)
-                .padding(start = 2.dp)
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 2.dp)
         )
         AnswerButton(
             srsCard = answers.hard,
             label = resolveString { vocabPractice.hardButton },
             onClick = onClick,
-            modifier = Modifier.background(MaterialTheme.extraColorScheme.due)
+            color = MaterialTheme.extraColorScheme.due,
+            modifier = Modifier
         )
         AnswerButton(
             srsCard = answers.good,
             label = resolveString { vocabPractice.goodButton },
             onClick = onClick,
-            modifier = Modifier.background(MaterialTheme.extraColorScheme.success)
+            color = MaterialTheme.extraColorScheme.success,
+            modifier = Modifier
         )
         AnswerButton(
             srsCard = answers.easy,
             label = resolveString { vocabPractice.easyButton },
             onClick = onClick,
-            modifier = Modifier.background(MaterialTheme.extraColorScheme.new)
-                .padding(end = 2.dp)
+            color = MaterialTheme.extraColorScheme.new,
+            modifier = Modifier.padding(end = 2.dp)
         )
     }
 
@@ -490,7 +497,6 @@ fun ExpandableVocabPracticeAnswersRow(
     state: State<ExpandableVocabPracticeAnswersRowState>,
     onClick: (SrsCard) -> Unit,
     modifier: Modifier = Modifier,
-    contentModifier: Modifier = Modifier,
 ) {
 
     AnimatedContent(
@@ -502,13 +508,20 @@ fun ExpandableVocabPracticeAnswersRow(
 
         val offset = animateFloatAsState(if (data.showButton) 0f else 1f)
 
+        val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
+            true -> Modifier
+            false -> Modifier.shadow(10.dp, MaterialTheme.shapes.medium)
+        }
+
         VocabPracticeAnswersRow(
             answers = data.answers,
             onClick = onClick,
             enableKeyboardControls = data.showButton,
             modifier = Modifier.fillMaxSize()
                 .graphicsLayer { translationY = size.height * offset.value },
-            contentModifier = contentModifier
+            contentModifier = Modifier.padding(20.dp)
+                .then(themeModifier)
+                .background(MaterialTheme.colorScheme.surface)
         )
 
     }
@@ -519,10 +532,10 @@ fun ExpandableVocabPracticeAnswersRow(
 private fun RowScope.AnswerButton(
     srsCard: SrsCard,
     label: String,
+    color: Color,
     onClick: (SrsCard) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(0.dp),
@@ -535,12 +548,14 @@ private fun RowScope.AnswerButton(
         Text(
             text = resolveString { vocabPractice.formattedSrsInterval(srsCard.interval) },
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White
+            color = color,
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White
+            style = MaterialTheme.typography.titleMedium.copy(
+                shadow = Shadow(color = color, blurRadius = 1f)
+            ),
+            color = color
         )
     }
 

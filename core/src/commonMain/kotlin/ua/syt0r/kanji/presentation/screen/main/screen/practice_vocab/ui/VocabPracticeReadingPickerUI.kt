@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.srs.SrsCard
@@ -123,8 +122,7 @@ fun VocabPracticeReadingPickerUI(
                 }
             },
             onClick = onNextClick,
-            modifier = Modifier.width(IntrinsicSize.Max),
-            contentModifier = Modifier.padding(20.dp).clip(MaterialTheme.shapes.medium)
+            modifier = Modifier.width(IntrinsicSize.Max)
         )
     }
 }
