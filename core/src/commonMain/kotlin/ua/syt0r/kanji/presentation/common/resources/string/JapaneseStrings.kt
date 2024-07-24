@@ -560,13 +560,22 @@ object JapaneseVocabPracticeStrings : VocabPracticeStrings {
     override val translationInFrontConfigurationMessage: String =
         "フラッシュカードが隠れているときに単語の代わりに翻訳を表示する"
     override val detailsButton: String = "詳細"
+    override val flashcardRevealButton: String = "答えを見る"
 
     override val formattedSrsInterval: (Duration) -> String = {
-        formattedSrsDuration(it, "日", "時", "分", "秒")
+        val duration = formattedSrsDuration(
+            duration = it,
+            dayLabel = "日",
+            hourLabel = "時",
+            minuteLabel = "分",
+            secondLabel = "秒",
+            separator = ""
+        )
+        "${duration}後"
     }
     override val againButton: String = "もう一度"
     override val hardButton: String = "難しい"
-    override val goodButton: String = "良い"
+    override val goodButton: String = "正解"
     override val easyButton: String = "簡単"
 
     override val summaryItemsCountTitle: String = "練習した単語の数"

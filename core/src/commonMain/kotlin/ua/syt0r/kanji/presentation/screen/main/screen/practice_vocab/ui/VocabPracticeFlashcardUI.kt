@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
@@ -61,9 +60,7 @@ fun VocabPracticeFlashcardUI(
 ) {
 
     AutopaddedScrollableColumn(
-        modifier = Modifier.fillMaxSize()
-            .wrapContentWidth()
-            .widthIn(max = 400.dp),
+        modifier = Modifier.fillMaxSize(),
         bottomOverlayContent = {
 
             val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
@@ -84,7 +81,7 @@ fun VocabPracticeFlashcardUI(
                     val focusRequester = remember { FocusRequester() }
                     LaunchedEffect(Unit) { focusRequester.requestFocus() }
                     Text(
-                        text = "Show answer",
+                        text = resolveString { vocabPractice.flashcardRevealButton },
                         modifier = Modifier.fillMaxSize()
                             .graphicsLayer { if (!isVisible) alpha = 0f }
                             .padding(horizontal = 20.dp)

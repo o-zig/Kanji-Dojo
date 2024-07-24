@@ -602,6 +602,7 @@ object EnglishVocabPracticeStrings : VocabPracticeStrings {
     override val translationInFrontConfigurationMessage: String =
         "Show translation instead of word when flashcard is hidden"
     override val detailsButton: String = "Details"
+    override val flashcardRevealButton: String = "Show Answer"
     override val formattedSrsInterval: (Duration) -> String = { formattedSrsDuration(it) }
     override val againButton: String = "Again"
     override val hardButton: String = "Hard"
@@ -622,20 +623,21 @@ fun formattedSrsDuration(
     hourLabel: String = "h",
     minuteLabel: String = "m",
     secondLabel: String = "s",
+    separator: String = " "
 ): String = when {
     duration.inWholeDays > 0 -> buildString {
         append("${duration.inWholeDays}$dayLabel")
-        appendIfNot0(duration.inWholeHours % 24) { " ${it}$hourLabel" }
+        appendIfNot0(duration.inWholeHours % 24) { "$separator${it}$hourLabel" }
     }
 
     duration.inWholeHours > 0 -> buildString {
         append("${duration.inWholeHours}$hourLabel")
-        appendIfNot0(duration.inWholeMinutes % 60) { " ${it}$minuteLabel" }
+        appendIfNot0(duration.inWholeMinutes % 60) { "$separator${it}$minuteLabel" }
     }
 
     duration.inWholeMinutes > 0 -> buildString {
         append("${duration.inWholeMinutes}$minuteLabel")
-        appendIfNot0(duration.inWholeSeconds % 60) { " ${it}$secondLabel" }
+        appendIfNot0(duration.inWholeSeconds % 60) { "$separator${it}$secondLabel" }
     }
 
     else -> "${duration.inWholeSeconds}$secondLabel"

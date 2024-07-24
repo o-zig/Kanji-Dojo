@@ -519,6 +519,7 @@ interface VocabPracticeStrings {
     val translationInFrontConfigurationMessage: String
 
     val detailsButton: String
+    val flashcardRevealButton: String
 
     val formattedSrsInterval: (Duration) -> String
     val againButton: String
