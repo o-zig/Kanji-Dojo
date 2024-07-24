@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -40,6 +41,25 @@ fun LetterDeckDetailsItemsUI(
     onCharacterClick: (String) -> Unit,
     onSelectionToggled: (DeckDetailsListItem) -> Unit,
 ) {
+
+    if (visibleData.items.isEmpty()) {
+        Column {
+            LetterDeckDetailsConfigurationRow(
+                configuration = visibleData.configuration,
+                kanaGroupsMode = false,
+                onConfigurationUpdate = onConfigurationUpdate
+            )
+
+            Text(
+                text = resolveString { letterDeckDetails.emptyListMessage },
+                modifier = Modifier.padding(horizontal = 20.dp)
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .wrapContentSize()
+            )
+        }
+        return
+    }
 
     Column {
 

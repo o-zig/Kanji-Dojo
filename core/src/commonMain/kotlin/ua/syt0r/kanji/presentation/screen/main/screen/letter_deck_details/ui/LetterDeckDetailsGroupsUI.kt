@@ -52,12 +52,16 @@ fun LetterDeckDetailsGroupsUI(
 ) {
 
     if (visibleData.items.isEmpty()) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
+        Column {
+            LetterDeckDetailsConfigurationRow(
+                configuration = visibleData.configuration,
+                kanaGroupsMode = visibleData.kanaGroupsMode,
+                onConfigurationUpdate = onConfigurationUpdate
+            )
+
             Text(
                 text = resolveString { letterDeckDetails.emptyListMessage },
-                modifier = Modifier
+                modifier = Modifier.padding(horizontal = 20.dp)
                     .weight(1f)
                     .fillMaxWidth()
                     .wrapContentSize()
