@@ -1,7 +1,6 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -52,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -68,6 +68,7 @@ import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboar
 import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.VocabDeckSrsProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.VocabPracticePreviewState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data.VocabPracticeType
+import kotlin.math.roundToInt
 
 @Composable
 fun VocabDashboardBottomSheet(
@@ -76,11 +77,14 @@ fun VocabDashboardBottomSheet(
     navigateToPractice: (MainDestination.VocabPractice) -> Unit
 ) {
 
+    val density = LocalDensity.current
+    var bottomSheetHeightDp by rememberSaveable { mutableStateOf(400) }
+
     val currentState = state.value
     if (currentState !is BottomSheetState.DeckSelected) {
         CircularProgressIndicator(
             modifier = Modifier.fillMaxWidth()
-                .heightIn(min = 200.dp, max = 400.dp)
+                .height(bottomSheetHeightDp.dp)
                 .wrapContentSize()
         )
         return
@@ -114,6 +118,11 @@ fun VocabDashboardBottomSheet(
 
     Column(
         modifier = Modifier.heightIn(min = 400.dp)
+            .onGloballyPositioned {
+                if (it.isAttached) {
+                    bottomSheetHeightDp = with(density) { it.size.height.toDp().value.roundToInt() }
+                }
+            }
     ) {
 
         ScreenBottomSheetHeader(
