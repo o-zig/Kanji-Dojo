@@ -142,6 +142,7 @@ fun VocabDashboardBottomSheet(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
+                .weight(1f)
                 .padding(horizontal = 20.dp)
         ) {
 
@@ -167,7 +168,13 @@ fun VocabDashboardBottomSheet(
                 }
 
                 VocabPracticePreviewState.Loading -> {
-                    item { CircularProgressIndicator(Modifier.size(24.dp)) }
+                    item {
+                        CircularProgressIndicator(
+                            modifier = Modifier.heightIn(max = 200.dp)
+                                .fillParentMaxSize()
+                                .wrapContentSize()
+                        )
+                    }
                 }
 
             }
