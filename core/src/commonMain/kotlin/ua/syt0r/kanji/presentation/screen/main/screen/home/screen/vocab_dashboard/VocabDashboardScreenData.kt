@@ -43,7 +43,7 @@ data class HardcodedVocabDeck(
     val expressionIds: List<Long>,
 )
 
-val vocabDecks = listOf(
+val hardcodedVocabDecks = listOf(
     HardcodedVocabDeck(
         titleResolver = { vocabDashboard.deckTitleTime },
         expressionIds = listOf(

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import ua.syt0r.kanji.core.RefreshableData
 import ua.syt0r.kanji.core.logger.Logger
 import ua.syt0r.kanji.core.refreshableDataFlow
+import ua.syt0r.kanji.core.srs.SrsCardKey
 import ua.syt0r.kanji.core.srs.SrsItemRepository
 import ua.syt0r.kanji.core.srs.SrsItemStatus
 import ua.syt0r.kanji.core.srs.use_case.GetSrsStatusUseCase
@@ -12,7 +13,7 @@ import ua.syt0r.kanji.core.user_data.practice.VocabPracticeRepository
 import ua.syt0r.kanji.presentation.LifecycleState
 import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.DashboardVocabDeck
 import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.VocabDeckSrsProgress
-import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.vocabDecks
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.hardcodedVocabDecks
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data.VocabPracticeType
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data.toSrsItemKey
 
@@ -28,7 +29,7 @@ data class VocabDecks(
 )
 
 class DefaultSubscribeOnDashboardVocabDecksUseCase(
-    private val repository: VocabPracticeRepository,
+    private val practiceRepository: VocabPracticeRepository,
     private val srsItemRepository: SrsItemRepository,
     private val getSrsStatusUseCase: GetSrsStatusUseCase
 ) : SubscribeOnDashboardVocabDecksUseCase {
@@ -37,7 +38,7 @@ class DefaultSubscribeOnDashboardVocabDecksUseCase(
         lifecycleState: StateFlow<LifecycleState>
     ): Flow<RefreshableData<VocabDecks>> {
         return refreshableDataFlow(
-            dataChangeFlow = repository.changesFlow,
+            dataChangeFlow = practiceRepository.changesFlow,
             lifecycleState = lifecycleState,
             valueProvider = { getUpdatedDecks() }
         )
@@ -46,58 +47,53 @@ class DefaultSubscribeOnDashboardVocabDecksUseCase(
     private suspend fun getUpdatedDecks(): VocabDecks {
         Logger.logMethod()
 
-        val userDecks = repository.getDecks()
-        val userDeckWords = userDecks.flatMap { repository.getDeckWords(it.id) }.toSet()
-        val defaultDeckWords = vocabDecks.flatMap { it.expressionIds }.toSet()
-        val deckWords = userDeckWords + defaultDeckWords
+        val userDecks = practiceRepository.getDecks()
 
-        val wordProgresses: Map<Long, WordSrsProgress> = deckWords.associateWith { wordId ->
-            WordSrsProgress(
-                statuses = VocabPracticeType.values().associateWith { practiceType ->
-                    val srsItemData = srsItemRepository.get(practiceType.toSrsItemKey(wordId))
-                    val expectedReviewTime = srsItemData?.lastReview?.plus(srsItemData.interval)
-                    getSrsStatusUseCase(expectedReviewTime)
-                }
+        val srsItemStatusMap: Map<SrsCardKey, SrsItemStatus> = srsItemRepository.getAll()
+            .mapValues { (_, srsCard) ->
+                getSrsStatusUseCase(srsCard.lastReview?.plus(srsCard.interval))
+            }
+
+        val hardcodedDecks = hardcodedVocabDecks.mapIndexed { index, it ->
+            DashboardVocabDeck.Default(
+                titleResolver = it.titleResolver,
+                words = it.expressionIds,
+                srsProgress = getVocabDeckSrsProgress(it.expressionIds, srsItemStatusMap),
+                index = index
             )
         }
 
         return VocabDecks(
             userDecks = userDecks.map {
-                val words = repository.getDeckWords(it.id)
+                val words = practiceRepository.getDeckWords(it.id)
                 DashboardVocabDeck.User(
                     titleResolver = { it.title },
                     words = words,
-                    srsProgress = getVocabDeckSrsProgress(words, wordProgresses),
+                    srsProgress = getVocabDeckSrsProgress(words, srsItemStatusMap),
                     id = it.id
                 )
             },
-            defaultDecks = vocabDecks.mapIndexed { index, it ->
-                DashboardVocabDeck.Default(
-                    titleResolver = it.titleResolver,
-                    words = it.expressionIds,
-                    srsProgress = getVocabDeckSrsProgress(it.expressionIds, wordProgresses),
-                    index = index
-                )
-            }
+            defaultDecks = hardcodedDecks
         )
     }
 
     private fun getVocabDeckSrsProgress(
         words: List<Long>,
-        cache: Map<Long, WordSrsProgress>
+        srsItemStatusMap: Map<SrsCardKey, SrsItemStatus>,
     ): Map<VocabPracticeType, VocabDeckSrsProgress> {
         return VocabPracticeType.values().associateWith { vocabPracticeType ->
             val done = mutableListOf<Long>()
             val due = mutableListOf<Long>()
             val new = mutableListOf<Long>()
-            words.forEach { word ->
-                val status = cache[word]?.statuses?.get(vocabPracticeType) ?: SrsItemStatus.New
+            words.forEach { wordId ->
+                val key = vocabPracticeType.toSrsItemKey(wordId)
+                val status = srsItemStatusMap[key] ?: SrsItemStatus.New
                 val list = when (status) {
                     SrsItemStatus.New -> new
                     SrsItemStatus.Done -> done
                     SrsItemStatus.Review -> due
                 }
-                list.add(word)
+                list.add(wordId)
             }
             VocabDeckSrsProgress(
                 all = words,
@@ -107,9 +103,5 @@ class DefaultSubscribeOnDashboardVocabDecksUseCase(
             )
         }
     }
-
-    data class WordSrsProgress(
-        val statuses: Map<VocabPracticeType, SrsItemStatus>
-    )
 
 }

@@ -1,7 +1,11 @@
 package ua.syt0r.kanji.core.user_data.practice
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
 import ua.syt0r.kanji.core.srs.SrsCardKey
 import ua.syt0r.kanji.core.srs.fsrs.FsrsCard
@@ -15,11 +19,13 @@ interface FsrsItemRepository {
     val updatesFlow: SharedFlow<Unit>
 
     suspend fun get(key: SrsCardKey): FsrsCard?
+    suspend fun getAll(): Map<SrsCardKey, FsrsCard>
     suspend fun update(key: SrsCardKey, card: FsrsCard)
 }
 
 class SqlDelightFsrsItemRepository(
-    private val userDataDatabaseManager: UserDataDatabaseManager
+    private val userDataDatabaseManager: UserDataDatabaseManager,
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined)
 ) : FsrsItemRepository {
 
     private val _updatesFlow = MutableSharedFlow<Unit>()
@@ -27,8 +33,21 @@ class SqlDelightFsrsItemRepository(
 
     private var inMemoryCache: MutableMap<SrsCardKey, FsrsCard>? = null
 
+    init {
+        userDataDatabaseManager.databaseChangeFlow
+            .onEach {
+                inMemoryCache = null
+                _updatesFlow.emit(Unit)
+            }
+            .launchIn(coroutineScope)
+    }
+
     override suspend fun get(key: SrsCardKey): FsrsCard? {
         return getCache()[key]
+    }
+
+    override suspend fun getAll(): Map<SrsCardKey, FsrsCard> {
+        return getCache()
     }
 
     override suspend fun update(key: SrsCardKey, card: FsrsCard) {

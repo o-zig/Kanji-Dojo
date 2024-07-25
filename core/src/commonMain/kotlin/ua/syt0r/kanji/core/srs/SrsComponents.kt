@@ -3,8 +3,8 @@ package ua.syt0r.kanji.core.srs
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.datetime.Instant
 import ua.syt0r.kanji.core.srs.fsrs.FsrsCard
-import ua.syt0r.kanji.core.user_data.practice.FsrsItemRepository
 import ua.syt0r.kanji.core.srs.fsrs.FsrsScheduler
+import ua.syt0r.kanji.core.user_data.practice.FsrsItemRepository
 import kotlin.time.Duration
 
 data class SrsCardKey(
@@ -33,6 +33,7 @@ interface SrsItemRepository {
     val updatesFlow: SharedFlow<Unit>
 
     suspend fun get(key: SrsCardKey): SrsCard?
+    suspend fun getAll(): Map<SrsCardKey, SrsCard>
     suspend fun update(key: SrsCardKey, card: SrsCard)
 
 }
@@ -50,6 +51,10 @@ class DefaultSrsItemRepository(
 
     override suspend fun get(key: SrsCardKey): SrsCard? {
         return fsrsItemRepository.get(key)?.let { SrsCard(it) }
+    }
+
+    override suspend fun getAll(): Map<SrsCardKey, SrsCard> {
+        return fsrsItemRepository.getAll().mapValues { SrsCard(it.value) }
     }
 
     override suspend fun update(key: SrsCardKey, card: SrsCard) {
