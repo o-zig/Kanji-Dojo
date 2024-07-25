@@ -1,0 +1,6 @@
+- Added option to animate character strokes after character is drawn
+- Added finish confirmation dialog on back click during vocab practice
+- Not completed words will show up in summary when finishing vocab practice
+- SRS review adjustments
+- Small UI updates
+- Bug fixes and improvements

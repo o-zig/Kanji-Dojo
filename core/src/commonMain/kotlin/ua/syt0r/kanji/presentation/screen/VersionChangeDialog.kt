@@ -42,6 +42,18 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.0.9", LocalDate(2024, 7, 26)) {
+                    append(
+                        """
+                        - Added option to animate character strokes after character is drawn
+                        - Added finish confirmation dialog on back click during vocab practice
+                        - Not completed words will show up in summary when finishing vocab practice
+                        - SRS review adjustments
+                        - Small UI updates
+                        - Bug fixes and improvements
+                        """.trimIndent()
+                    )
+                }
                 version("2.0.8", LocalDate(2024, 7, 16)) {
                     append(
                         """
@@ -49,7 +61,7 @@ fun VersionChangeDialog(
                         - Added text field in addition to slider for items selection when configuring practice
                         - Added more info about radicals on kanji info screen
                         - UI updates
-                        - Added macOs builds to Github Releases
+                        - Added MacOS builds to Github Releases
                         """.trimIndent()
                     )
                 }
