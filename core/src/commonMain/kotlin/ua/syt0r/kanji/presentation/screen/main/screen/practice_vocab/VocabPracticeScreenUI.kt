@@ -443,42 +443,64 @@ fun VocabPracticeAnswersRow(
         Modifier
     }
 
+    val theme = LocalThemeManager.current
+    val rowThemeModifier = when {
+        theme.isDarkTheme -> Modifier.clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(4.dp)
+
+        else -> Modifier.shadow(2.dp, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surface)
+    }
+
+    val buttonThemeModifier = when {
+        theme.isDarkTheme -> Modifier.clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+
+        else -> Modifier
+    }
+
     Row(
         modifier = modifier.horizontalScroll(rememberScrollState())
             .then(contentModifier)
-            .clip(MaterialTheme.shapes.medium)
+            .then(rowThemeModifier)
             .then(keyboardControlsModifier)
             .width(IntrinsicSize.Max)
             .height(IntrinsicSize.Max),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        horizontalArrangement = Arrangement.spacedBy(
+            space = if (theme.isDarkTheme) 4.dp else 2.dp
+        )
     ) {
         AnswerButton(
             srsCard = answers.again,
             label = resolveString { vocabPractice.againButton },
             onClick = onClick,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(start = 2.dp)
+            outerModifier = buttonThemeModifier,
+            innerModifier = Modifier.padding(start = 2.dp)
         )
         AnswerButton(
             srsCard = answers.hard,
             label = resolveString { vocabPractice.hardButton },
             onClick = onClick,
             color = MaterialTheme.extraColorScheme.due,
-            modifier = Modifier
+            outerModifier = buttonThemeModifier
         )
         AnswerButton(
             srsCard = answers.good,
             label = resolveString { vocabPractice.goodButton },
             onClick = onClick,
             color = MaterialTheme.extraColorScheme.success,
-            modifier = Modifier
+            outerModifier = buttonThemeModifier
         )
         AnswerButton(
             srsCard = answers.easy,
             label = resolveString { vocabPractice.easyButton },
             onClick = onClick,
             color = MaterialTheme.extraColorScheme.new,
-            modifier = Modifier.padding(end = 2.dp)
+            outerModifier = buttonThemeModifier,
+            innerModifier = Modifier.padding(end = 2.dp)
         )
     }
 
@@ -505,11 +527,6 @@ fun ExpandableVocabPracticeAnswersRow(
 
         val offset = animateFloatAsState(if (data.showButton) 0f else 1f)
 
-        val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
-            true -> Modifier
-            false -> Modifier.shadow(10.dp, MaterialTheme.shapes.medium)
-        }
-
         VocabPracticeAnswersRow(
             answers = data.answers,
             onClick = onClick,
@@ -517,8 +534,6 @@ fun ExpandableVocabPracticeAnswersRow(
             modifier = Modifier.fillMaxSize()
                 .graphicsLayer { translationY = size.height * offset.value },
             contentModifier = Modifier.padding(20.dp)
-                .then(themeModifier)
-                .background(MaterialTheme.colorScheme.surface)
         )
 
     }
@@ -531,15 +546,17 @@ private fun RowScope.AnswerButton(
     label: String,
     color: Color,
     onClick: (SrsCard) -> Unit,
-    modifier: Modifier = Modifier
+    outerModifier: Modifier,
+    innerModifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(0.dp),
         modifier = Modifier.weight(1f)
             .fillMaxHeight()
+            .then(outerModifier)
             .clickable(onClick = { onClick(srsCard) })
-            .then(modifier)
+            .then(innerModifier)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(

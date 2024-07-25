@@ -63,11 +63,6 @@ fun VocabPracticeFlashcardUI(
         modifier = Modifier.fillMaxSize(),
         bottomOverlayContent = {
 
-            val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
-                true -> Modifier
-                false -> Modifier.shadow(10.dp, MaterialTheme.shapes.medium)
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,14 +75,24 @@ fun VocabPracticeFlashcardUI(
                 val hiddenButton = @Composable { isVisible: Boolean ->
                     val focusRequester = remember { FocusRequester() }
                     LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+                    val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
+                        true -> Modifier.padding(4.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+
+                        false -> Modifier.shadow(2.dp, MaterialTheme.shapes.medium)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surface)
+
+                    }
+
                     Text(
                         text = resolveString { vocabPractice.flashcardRevealButton },
                         modifier = Modifier.fillMaxSize()
                             .graphicsLayer { if (!isVisible) alpha = 0f }
                             .padding(horizontal = 20.dp)
                             .then(themeModifier)
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surface)
                             .focusable()
                             .focusRequester(focusRequester)
                             .onKeyEvent {
@@ -105,11 +110,8 @@ fun VocabPracticeFlashcardUI(
                     VocabPracticeAnswersRow(
                         answers = answers,
                         onClick = { if (isVisible) onNextClick(it) },
-                        contentModifier = Modifier
-                            .graphicsLayer { if (!isVisible) alpha = 0f }
-                            .padding(horizontal = 20.dp)
-                            .then(themeModifier)
-                            .background(MaterialTheme.colorScheme.surface)
+                        modifier = Modifier.graphicsLayer { if (!isVisible) alpha = 0f },
+                        contentModifier = Modifier.padding(horizontal = 20.dp)
                     )
                 }
 
