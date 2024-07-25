@@ -64,7 +64,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.app_data.data.buildFuriganaString
 import ua.syt0r.kanji.core.srs.SrsCard
@@ -404,9 +403,7 @@ private fun SummaryItem(
                 modifier = Modifier.weight(1f).alignByBaseline()
             )
             Text(
-                text = resolveString {
-                    vocabPractice.formattedSrsInterval(item.nextReview - Clock.System.now())
-                },
+                text = resolveString { vocabPractice.formattedSrsInterval(item.nextInterval) },
                 modifier = Modifier.alignByBaseline()
             )
         }

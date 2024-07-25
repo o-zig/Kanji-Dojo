@@ -2,7 +2,6 @@ package ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import kotlinx.datetime.Instant
 import ua.syt0r.kanji.core.app_data.data.FuriganaString
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.srs.SrsCard
@@ -12,6 +11,7 @@ import ua.syt0r.kanji.core.user_data.preferences.VocabReadingPriority
 import ua.syt0r.kanji.presentation.common.resources.string.StringResolveScope
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.DisplayableEnum
+import kotlin.time.Duration
 
 enum class VocabPracticeType(
     val preferencesType: PreferencesVocabPracticeType,
@@ -154,5 +154,5 @@ data class VocabPracticeReviewState(
 data class VocabSummaryItem(
     val word: JapaneseWord,
     val reading: FuriganaString,
-    val nextReview: Instant
+    val nextInterval: Duration
 )

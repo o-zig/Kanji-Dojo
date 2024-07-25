@@ -63,7 +63,7 @@ class DefaultVocabPracticeQueue(
     private lateinit var queue: MutableList<VocabPracticeQueueItem>
 
     private lateinit var practiceStartInstant: Instant
-    private val summaryItems = mutableListOf<VocabSummaryItem>()
+    private val summaryItems = mutableMapOf<SrsCardKey, VocabSummaryItem>()
 
     private val nextRequests = Channel<SrsCard>()
 
@@ -94,7 +94,7 @@ class DefaultVocabPracticeQueue(
     override fun finishPractice() {
         _state.value = VocabReviewQueueState.Summary(
             duration = timeUtils.now() - practiceStartInstant,
-            items = summaryItems
+            items = summaryItems.values.toList()
         )
     }
 
@@ -102,16 +102,18 @@ class DefaultVocabPracticeQueue(
         return VocabQueueProgress(
             pending = queue.count { it.repeats == 0 },
             repeats = queue.count { it.repeats > 0 },
-            completed = summaryItems.size
+            completed = summaryItems.filter { it.value.nextInterval >= 1.days }.size
         )
     }
 
     private suspend fun handleAnswer(srsCard: SrsCard) {
         val item = queue.removeFirstOrNull() ?: return
+        val updatedItem = item.copy(srsCard = srsCard, repeats = item.repeats + 1)
+
+        saveSummaryData(updatedItem)
+
         if (srsCard.interval < 1.days) {
-            placeItemBackToQueue(item, srsCard)
-        } else {
-            addSummaryItem(item.copy(srsCard = srsCard))
+            placeItemBackToQueue(updatedItem)
         }
 
         updateState()
@@ -171,10 +173,9 @@ class DefaultVocabPracticeQueue(
     }
 
     private fun placeItemBackToQueue(
-        queueItem: VocabPracticeQueueItem,
-        updatedSrsItem: SrsCard
+        updatedQueueItem: VocabPracticeQueueItem
     ) {
-        val nextReviewTime = getExpectedReviewTime(updatedSrsItem)
+        val nextReviewTime = getExpectedReviewTime(updatedQueueItem.srsCard)
         val insertPosition = queue.asSequence()
             .map { getExpectedReviewTime(it.srsCard) }
             .indexOfFirst { nextReviewTime < it }
@@ -185,10 +186,6 @@ class DefaultVocabPracticeQueue(
             }
             ?: min(queue.size, 10)
 
-        val updatedQueueItem = queueItem.copy(
-            srsCard = updatedSrsItem,
-            repeats = queueItem.repeats + 1
-        )
         queue.add(insertPosition, updatedQueueItem)
     }
 
@@ -196,9 +193,9 @@ class DefaultVocabPracticeQueue(
         return (srsItem.lastReview ?: Instant.DISTANT_PAST) + srsItem.interval
     }
 
-    private suspend fun addSummaryItem(queueItem: VocabPracticeQueueItem) {
-        val summaryItem = getSummaryItemUseCase(queueItem)//todo
-        summaryItems.add(summaryItem)
+    private fun saveSummaryData(queueItem: VocabPracticeQueueItem) {
+        val summaryItem = getSummaryItemUseCase(queueItem)
+        summaryItems[queueItem.srsCardKey] = summaryItem
     }
 
 }
