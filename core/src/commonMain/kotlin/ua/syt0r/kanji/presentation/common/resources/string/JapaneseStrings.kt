@@ -569,11 +569,10 @@ object JapaneseCommonPracticeStrings : CommonPracticeStrings {
     override val goodButton: String = "正解"
     override val easyButton: String = "簡単"
 
-    override val summaryReviewedCountLabel: String = "練習した文字の数"
     override val summaryTimeSpentLabel: String = "時間"
     override val summaryTimeSpentValue: (Duration) -> String = { formatDuration(it) }
     override val summaryAccuracyLabel: String = "正解率"
-    override val summaryItemsCountTitle: String = "練習した単語の数"
+    override val summaryItemsCountTitle: String = "練習した項目の数"
     override val summaryNextReviewLabel: String = "次の復習:"
     override val summaryButton: String = "終了"
 

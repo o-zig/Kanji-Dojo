@@ -471,7 +471,6 @@ interface CommonPracticeStrings {
     val goodButton: String
     val easyButton: String
 
-    val summaryReviewedCountLabel: String
     val summaryTimeSpentLabel: String
     val summaryTimeSpentValue: (Duration) -> String
     val summaryAccuracyLabel: String

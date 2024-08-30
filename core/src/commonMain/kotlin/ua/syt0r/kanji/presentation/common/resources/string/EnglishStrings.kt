@@ -583,10 +583,9 @@ object EnglishCommonPracticeStrings : CommonPracticeStrings {
     override val hardButton: String = "Hard"
     override val goodButton: String = "Good"
     override val easyButton: String = "Easy"
-    override val summaryItemsCountTitle: String = "Reviewed Words"
+    override val summaryItemsCountTitle: String = "Reviewed Items"
     override val summaryNextReviewLabel: String = "Next review:"
 
-    override val summaryReviewedCountLabel: String = "Characters reviewed"
     override val summaryTimeSpentLabel: String = "Time spent"
     override val summaryTimeSpentValue: (Duration) -> String = { formatDuration(it) }
     override val summaryAccuracyLabel: String = "Accuracy"
