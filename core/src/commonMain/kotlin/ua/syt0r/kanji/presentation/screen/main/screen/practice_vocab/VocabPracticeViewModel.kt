@@ -84,6 +84,10 @@ class VocabPracticeViewModel(
             practiceQueue.state
                 .onEach { applyToScreenState(it) }
                 .launchIn(viewModelScope)
+
+            analyticsManager.sendEvent("vocab_practice_configuration") {
+                put("practice_type", configuration.practiceType.dataType.srsPracticeType.value)
+            }
         }
     }
 

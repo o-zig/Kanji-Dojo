@@ -40,8 +40,6 @@ interface LetterPracticeScreenContract {
         fun speakKana(reading: KanaReading)
         fun finishPractice()
 
-        fun reportPracticeSize(configuration: LetterPracticeScreenConfiguration)
-
     }
 
     sealed interface ScreenState {

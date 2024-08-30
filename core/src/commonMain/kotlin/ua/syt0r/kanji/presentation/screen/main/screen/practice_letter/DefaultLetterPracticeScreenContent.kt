@@ -20,7 +20,6 @@ object DefaultLetterPracticeScreenContent : LetterPracticeScreenContract.Content
 
         LaunchedEffect(Unit) {
             viewModel.initialize(configuration)
-            viewModel.reportPracticeSize(configuration)
         }
 
         LetterPracticeScreenUI(

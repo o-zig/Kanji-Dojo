@@ -26,10 +26,11 @@ data class LetterPracticeScreenConfiguration(
 
 sealed interface LetterPracticeConfiguration {
 
+    val selectorState: PracticeConfigurationItemsSelectorState<String>
     val practiceType: ScreenLetterPracticeType
 
     data class Writing(
-        val selectorState: PracticeConfigurationItemsSelectorState<String>,
+        override val selectorState: PracticeConfigurationItemsSelectorState<String>,
         val hintMode: MutableState<WritingPracticeHintMode>,
         val inputMode: MutableState<WritingPracticeInputMode>,
         val useRomajiForKanaWords: MutableState<Boolean>,
@@ -41,7 +42,7 @@ sealed interface LetterPracticeConfiguration {
     }
 
     data class Reading(
-        val selectorState: PracticeConfigurationItemsSelectorState<String>,
+        override val selectorState: PracticeConfigurationItemsSelectorState<String>,
         val useRomajiForKanaWords: MutableState<Boolean>
     ) : LetterPracticeConfiguration {
         override val practiceType: ScreenLetterPracticeType = ScreenLetterPracticeType.Reading

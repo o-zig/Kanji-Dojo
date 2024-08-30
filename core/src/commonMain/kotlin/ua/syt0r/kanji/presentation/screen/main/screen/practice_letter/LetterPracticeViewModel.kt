@@ -92,6 +92,8 @@ class LetterPracticeViewModel(
                 }
                 .launchIn(this)
         }
+
+        reportConfiguration(configurationState)
     }
 
     override fun submitAnswer(answer: PracticeAnswer) {
@@ -106,9 +108,10 @@ class LetterPracticeViewModel(
         practiceQueue.immediateFinish()
     }
 
-    override fun reportPracticeSize(configuration: LetterPracticeScreenConfiguration) {
-        analyticsManager.sendEvent("writing_practice_configuration") {
-            put("list_size", configuration.characterToDeckIdMap.size)
+    private fun reportConfiguration(state: ScreenState.Configuring) {
+        analyticsManager.sendEvent("letter_practice_configuration") {
+            put("practice_type", configuration.practiceType.dataType.srsPracticeType.value)
+            put("list_size", state.configuration.selectorState.result.size)
         }
     }
 
