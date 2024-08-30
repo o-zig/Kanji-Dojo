@@ -3,6 +3,7 @@ package ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.use_case
 import ua.syt0r.kanji.core.app_data.AppDataRepository
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.app_data.data.ReadingType
+import ua.syt0r.kanji.core.app_data.data.withEmptyFurigana
 import ua.syt0r.kanji.core.app_data.data.withEncodedText
 import ua.syt0r.kanji.core.japanese.RomajiConverter
 import ua.syt0r.kanji.core.japanese.getKanaInfo
@@ -50,8 +51,11 @@ class DefaultGetLetterPracticeQueueItemDataUseCase(
             )
         }
 
-        val encodedWords = encodeWords(descriptor.character, words)
-
+        val encodedWords = encodeWords(
+            character = descriptor.character,
+            words = words,
+            isReadingPractice = descriptor is LetterPracticeQueueItemDescriptor.Reading
+        )
 
         return when (descriptor) {
             is LetterPracticeQueueItemDescriptor.Writing -> {
@@ -158,9 +162,18 @@ class DefaultGetLetterPracticeQueueItemDataUseCase(
         }
     }
 
-    private fun encodeWords(character: String, words: List<JapaneseWord>): List<JapaneseWord> {
+    private fun encodeWords(
+        character: String,
+        words: List<JapaneseWord>,
+        isReadingPractice: Boolean
+    ): List<JapaneseWord> {
         return words.map { word ->
-            word.copy(readings = word.readings.map { it.withEncodedText(character) })
+            word.copy(
+                readings = word.readings.map {
+                    it.withEncodedText(character)
+                        .let { if (isReadingPractice) it.withEmptyFurigana() else it }
+                }
+            )
         }
     }
 
