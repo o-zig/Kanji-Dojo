@@ -74,7 +74,7 @@ private fun State<LetterPracticeReviewState.Writing>.toAnswerButtonsState(): Sta
     }
 
 @Composable
-fun WritingPracticeInputSection(
+fun LetterPracticeWritingInputSection(
     state: State<LetterPracticeReviewState.Writing>,
     onNextClick: (PracticeAnswer) -> Unit,
     modifier: Modifier = Modifier

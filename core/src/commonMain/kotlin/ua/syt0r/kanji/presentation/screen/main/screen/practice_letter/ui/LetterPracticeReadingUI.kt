@@ -71,7 +71,7 @@ fun LetterPracticeReadingUI(
                     .fillMaxWidth()
             ) {
                 item {
-                    ReadingPracticeCharacterDetailsUI(
+                    LetterPracticeReadingInfoSection(
                         state = reviewState,
                         speakKana = speakKana,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
@@ -89,7 +89,7 @@ fun LetterPracticeReadingUI(
                 modifier = Modifier.fillMaxWidth().weight(1f)
             ) {
 
-                ReadingPracticeCharacterDetailsUI(
+                LetterPracticeReadingInfoSection(
                     state = reviewState,
                     speakKana = speakKana,
                     modifier = Modifier.weight(1f)

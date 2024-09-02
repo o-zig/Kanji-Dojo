@@ -60,7 +60,7 @@ fun State<LetterPracticeReviewState.Writing>.asWordsBottomSheetState(): State<Bo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WritingPracticeWordsBottomSheet(
+fun LetterPracticeWritingWordsBottomSheet(
     state: State<BottomSheetStateData>,
     sheetContentHeight: State<Dp>,
     onWordClick: (JapaneseWord) -> Unit

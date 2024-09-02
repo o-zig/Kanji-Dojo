@@ -67,7 +67,7 @@ fun LetterPracticeWritingUI(
         Material3BottomSheetScaffold(
             scaffoldState = scaffoldState,
             sheetContent = {
-                WritingPracticeWordsBottomSheet(
+                LetterPracticeWritingWordsBottomSheet(
                     state = wordsBottomSheetState,
                     sheetContentHeight = bottomSheetHeightState,
                     onWordClick = onWordClick
@@ -77,7 +77,7 @@ fun LetterPracticeWritingUI(
 
             val infoSectionBottomPadding = remember { mutableStateOf(0.dp) }
 
-            WritingPracticeInfoSection(
+            LetterPracticeWritingInfoSection(
                 state = infoSectionState,
                 bottomSheetHeight = bottomSheetHeightState,
                 onExpressionsClick = openBottomSheet,
@@ -86,7 +86,7 @@ fun LetterPracticeWritingUI(
                 modifier = Modifier.fillMaxSize(),
             )
 
-            WritingPracticeInputSection(
+            LetterPracticeWritingInputSection(
                 state = reviewState,
                 onNextClick = onNextClick,
                 modifier = Modifier
@@ -108,7 +108,7 @@ fun LetterPracticeWritingUI(
             Material3BottomSheetScaffold(
                 scaffoldState = scaffoldState,
                 sheetContent = {
-                    WritingPracticeWordsBottomSheet(
+                    LetterPracticeWritingWordsBottomSheet(
                         state = wordsBottomSheetState,
                         sheetContentHeight = bottomSheetHeightState,
                         onWordClick = onWordClick
@@ -118,7 +118,7 @@ fun LetterPracticeWritingUI(
                     .fillMaxHeight()
                     .weight(1f)
             ) {
-                WritingPracticeInfoSection(
+                LetterPracticeWritingInfoSection(
                     state = infoSectionState,
                     bottomSheetHeight = bottomSheetHeightState,
                     onExpressionsClick = openBottomSheet,
@@ -129,7 +129,7 @@ fun LetterPracticeWritingUI(
         }
 
         val inputSection: @Composable RowScope.() -> Unit = {
-            WritingPracticeInputSection(
+            LetterPracticeWritingInputSection(
                 state = reviewState,
                 onNextClick = onNextClick,
                 modifier = Modifier

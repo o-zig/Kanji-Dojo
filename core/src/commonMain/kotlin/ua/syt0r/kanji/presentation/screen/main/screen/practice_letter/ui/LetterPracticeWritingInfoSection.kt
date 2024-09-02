@@ -24,13 +24,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -43,17 +40,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.CharacterRadical
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.japanese.KanaReading
-import ua.syt0r.kanji.presentation.common.resolveString
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.trackItemPosition
 import ua.syt0r.kanji.presentation.common.ui.FuriganaText
@@ -64,7 +57,6 @@ import ua.syt0r.kanji.presentation.common.ui.kanji.RadicalKanji
 import ua.syt0r.kanji.presentation.common.ui.kanji.getColoredKanjiStrokes
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriterConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.KanaVoiceAutoPlayToggle
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeItemData
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeLayoutConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeReviewState
@@ -115,7 +107,7 @@ fun State<LetterPracticeReviewState.Writing>.asInfoSectionState(
 private val MaxTransitionSlideDistance = 200.dp
 
 @Composable
-fun WritingPracticeInfoSection(
+fun LetterPracticeWritingInfoSection(
     state: State<WritingPracticeInfoSectionData>,
     modifier: Modifier = Modifier,
     bottomSheetHeight: MutableState<Dp>,
@@ -148,28 +140,28 @@ fun WritingPracticeInfoSection(
         val scrollStateResetKey = data.run { characterData.character to isStudyMode }
         val scrollState = remember(scrollStateResetKey) { ScrollState(0) }
 
-        val arrangement: Arrangement.Vertical
-        val characterDetailsContent: @Composable ColumnScope.() -> Unit
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-        when (data.characterData) {
-            is LetterPracticeItemData.KanaWritingData -> {
-                val kanaAutoPlay = data.layoutConfiguration.kanaAutoPlay
-                arrangement = Arrangement.spacedBy(0.dp)
-                characterDetailsContent = {
+            when (data.characterData) {
+                is LetterPracticeItemData.KanaWritingData -> {
+                    val autoPlay = data.layoutConfiguration.kanaAutoPlay
                     KanaDetails(
                         details = data.characterData,
                         isStudyMode = data.isStudyMode,
-                        autoPlay = kanaAutoPlay,
-                        toggleAutoPlay = { kanaAutoPlay.value = kanaAutoPlay.value.not() },
+                        autoPlay = autoPlay,
+                        toggleAutoPlay = { autoPlay.value = autoPlay.value.not() },
                         speakKana = speakKana
                     )
                 }
-            }
 
-            is LetterPracticeItemData.KanjiWritingData -> {
-                val highlightRadicals = data.layoutConfiguration.radicalsHighlight
-                arrangement = Arrangement.spacedBy(8.dp)
-                characterDetailsContent = {
+                is LetterPracticeItemData.KanjiWritingData -> {
+                    val highlightRadicals = data.layoutConfiguration.radicalsHighlight
                     KanjiDetails(
                         details = data.characterData,
                         isStudyMode = data.isStudyMode,
@@ -181,17 +173,6 @@ fun WritingPracticeInfoSection(
                     )
                 }
             }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState)
-                .padding(20.dp),
-            verticalArrangement = arrangement
-        ) {
-
-            characterDetailsContent()
 
             val expressions = data.characterData
                 .run { if (data.isStudyMode || data.revealCharacter) words else encodedWords }
@@ -239,46 +220,18 @@ private fun ColumnScope.KanaDetails(
         )
     }
 
-    KanaVoiceAutoPlayToggle(
-        enabledState = autoPlay,
-        enabled = true,
-        onClick = toggleAutoPlay,
+    LetterPracticeKanaInfo(
+        kanaSystem = details.kanaSystem,
+        reading = details.reading,
         modifier = Modifier.align(Alignment.CenterHorizontally)
     )
 
-    TextButton(
-        modifier = Modifier.align(Alignment.CenterHorizontally),
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
-        onClick = { speakKana(details.reading) }
-    ) {
-
-        Text(
-            text = buildAnnotatedString {
-                append(details.kanaSystem.resolveString())
-                append(" ")
-                withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                    append(details.reading.nihonShiki.capitalize(Locale.current))
-                }
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-
-        Icon(Icons.Default.VolumeUp, null)
-
-    }
-
-    details.reading.alternative?.let { alternativeReadings ->
-        Text(
-            text = resolveString { commonPractice.additionalKanaReadingsNote(alternativeReadings) },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-    }
-
-    Spacer(Modifier.height(8.dp))
+    KanaVoiceMenu(
+        autoPlayEnabled = autoPlay,
+        clickable = true,
+        onAutoPlayToggleClick = toggleAutoPlay,
+        onSpeakClick = { speakKana(details.reading) }
+    )
 
 }
 

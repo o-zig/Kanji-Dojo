@@ -3,17 +3,9 @@ package ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -23,23 +15,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.japanese.KanaReading
-import ua.syt0r.kanji.presentation.common.resolveString
-import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.textDp
 import ua.syt0r.kanji.presentation.common.ui.kanji.KanjiReadingsContainer
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.KanaVoiceAutoPlayToggle
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeItemData
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeReviewState
 
 @Composable
-fun ReadingPracticeCharacterDetailsUI(
+fun LetterPracticeReadingInfoSection(
     state: LetterPracticeReviewState.Reading,
     speakKana: (KanaReading) -> Unit,
     modifier: Modifier
@@ -49,14 +33,20 @@ fun ReadingPracticeCharacterDetailsUI(
     val alpha = remember { derivedStateOf { if (revealed.value) 1f else 0f } }
     val clickable by remember { derivedStateOf { alpha.value == 1f } }
 
-    val arrangement: Arrangement.Vertical
-    val characterDetailsContent: @Composable ColumnScope.() -> Unit
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
 
-    when (state.itemData) {
+        Text(
+            text = state.itemData.character,
+            fontSize = 80.textDp,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
 
-        is LetterPracticeItemData.KanaReadingData -> {
-            arrangement = Arrangement.spacedBy(0.dp)
-            characterDetailsContent = {
+        when (state.itemData) {
+
+            is LetterPracticeItemData.KanaReadingData -> {
                 KanaDetails(
                     data = state.itemData,
                     kanaAutoPlay = state.layout.kanaAutoPlay,
@@ -68,34 +58,16 @@ fun ReadingPracticeCharacterDetailsUI(
                     clickable = clickable
                 )
             }
-        }
 
-        is LetterPracticeItemData.KanjiReadingData -> {
-            arrangement = Arrangement.spacedBy(8.dp)
-            characterDetailsContent = {
+            is LetterPracticeItemData.KanjiReadingData -> {
                 KanjiDetails(
                     data = state.itemData,
                     alpha = alpha,
                     clickable = clickable
                 )
             }
+
         }
-
-    }
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = arrangement
-    ) {
-
-        Text(
-            text = state.itemData.character,
-            fontSize = 80.textDp,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-                .padding(bottom = 20.dp)
-        )
-
-        characterDetailsContent()
 
     }
 
@@ -111,47 +83,19 @@ private fun ColumnScope.KanaDetails(
     clickable: Boolean
 ) {
 
-    KanaVoiceAutoPlayToggle(
-        enabledState = kanaAutoPlay,
-        onClick = toggleKanaAutoPlay,
-        enabled = clickable,
+    LetterPracticeKanaInfo(
+        kanaSystem = data.kanaSystem,
+        reading = data.reading,
         modifier = Modifier.align(Alignment.CenterHorizontally).alpha(alpha.value)
     )
 
-    TextButton(
-        onClick = { speakKana(data.reading) },
-        enabled = clickable,
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
-        modifier = Modifier.align(Alignment.CenterHorizontally).alpha(alpha.value),
-    ) {
-
-        Text(
-            text = buildAnnotatedString {
-                append(data.kanaSystem.resolveString())
-                append(" ")
-                withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                    append(data.reading.nihonShiki.capitalize(Locale.current))
-                }
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-
-        Icon(Icons.AutoMirrored.Filled.VolumeUp, null)
-
-    }
-
-    data.reading.alternative?.let { alternativeReadings ->
-        Text(
-            text = resolveString { commonPractice.additionalKanaReadingsNote(alternativeReadings) },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally).alpha(alpha.value)
-        )
-    }
-
-    Spacer(Modifier.height(8.dp))
+    KanaVoiceMenu(
+        autoPlayEnabled = kanaAutoPlay,
+        clickable = clickable,
+        onAutoPlayToggleClick = toggleKanaAutoPlay,
+        onSpeakClick = { speakKana(data.reading) },
+        modifier = Modifier.align(Alignment.CenterHorizontally).alpha(alpha.value)
+    )
 
 }
 
@@ -178,7 +122,7 @@ private fun ColumnScope.KanjiDetails(
 
     if (data.variants != null) {
         KanjiVariantsRow(
-            data.variants,
+            variants = data.variants,
             modifier = Modifier.alpha(alpha.value)
         )
     }

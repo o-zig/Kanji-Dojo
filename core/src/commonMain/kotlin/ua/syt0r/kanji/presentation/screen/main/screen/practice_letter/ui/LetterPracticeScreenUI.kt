@@ -1,6 +1,7 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -11,13 +12,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,16 +42,25 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
+import ua.syt0r.kanji.core.japanese.CharacterClassification
 import ua.syt0r.kanji.core.japanese.KanaReading
 import ua.syt0r.kanji.presentation.common.MultiplatformBackHandler
 import ua.syt0r.kanji.presentation.common.jsonSaver
+import ua.syt0r.kanji.presentation.common.resolveString
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.ui.FancyLoading
 import ua.syt0r.kanji.presentation.common.ui.FuriganaText
@@ -62,6 +82,8 @@ import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.Lette
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeReviewState
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.WritingPracticeHintMode
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.WritingPracticeInputMode
+import kotlin.math.absoluteValue
+import kotlin.math.cos
 
 @Composable
 fun LetterPracticeScreenUI(
@@ -412,6 +434,128 @@ fun KanjiVariantsRow(
                 color = variantsTextColor
             )
         }
+
+    }
+
+}
+
+@Composable
+fun LetterPracticeKanaInfo(
+    kanaSystem: CharacterClassification.Kana,
+    reading: KanaReading,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Text(
+            text = buildAnnotatedString {
+                append(kanaSystem.resolveString().toLowerCase(Locale.current))
+                append(" ")
+                append(reading.nihonShiki)
+            },
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+
+        reading.alternative?.let { alternativeReadings ->
+            Text(
+                text = resolveString { commonPractice.additionalKanaReadingsNote(alternativeReadings) },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+
+}
+
+
+private const val WaveMaxFraction = 0.8
+private const val WaveMinFraction = 0.4
+
+private val WaveStrokesPhaseShifts = listOf(-90.0, -45.0, 0.0)
+    .let { it + it.take(it.size - 1).reversed().map { it * -1 } }
+
+@Composable
+fun ColumnScope.KanaVoiceMenu(
+    autoPlayEnabled: State<Boolean>,
+    clickable: Boolean,
+    onAutoPlayToggleClick: () -> Unit,
+    onSpeakClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val waveAnimationProgress = remember { Animatable(1f) }
+
+    Row(
+        modifier = modifier.align(Alignment.CenterHorizontally)
+            .height(IntrinsicSize.Max)
+            .width(200.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(
+                enabled = clickable,
+                onClick = {
+                    onSpeakClick()
+                    coroutineScope.launch {
+                        waveAnimationProgress.snapTo(0f)
+                        waveAnimationProgress.animateTo(1f, tween())
+                    }
+                }
+            )
+            .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        val (autoPlatTextColor, autoPlatContainerColor) = when {
+            autoPlayEnabled.value -> {
+                MaterialTheme.colorScheme.surface to MaterialTheme.colorScheme.onSurfaceVariant
+            }
+
+            else -> {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f) to MaterialTheme.colorScheme.surfaceVariant
+            }
+        }
+
+        Text(
+            text = "A",
+            color = autoPlatTextColor,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                lineHeightStyle = LineHeightStyle(
+                    LineHeightStyle.Alignment.Center,
+                    LineHeightStyle.Trim.Both
+                )
+            ),
+            modifier = Modifier
+                .aspectRatio(1f, true)
+                .clip(CircleShape)
+                .background(autoPlatContainerColor)
+                .clickable(enabled = clickable, onClick = onAutoPlayToggleClick)
+                .wrapContentSize(unbounded = true)
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        WaveStrokesPhaseShifts.forEach { phaseShift ->
+            val phase = Math.toRadians(-waveAnimationProgress.value * 360 - phaseShift)
+            val height = WaveMinFraction + cos(phase).absoluteValue * (WaveMaxFraction - WaveMinFraction)
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 1.dp)
+                    .fillMaxHeight(height.toFloat())
+                    .width(3.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f))
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Icon(Icons.AutoMirrored.Filled.VolumeUp, null)
 
     }
 
