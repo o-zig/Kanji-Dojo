@@ -2,7 +2,7 @@ package ua.syt0r.kanji.core.app_data
 
 import kotlinx.coroutines.Deferred
 import kotlinx.serialization.Serializable
-import ua.syt0r.kanji.BuildKonfig
+import ua.syt0r.kanji.BuildConfig
 import ua.syt0r.kanji.core.app_data.data.CharacterRadical
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.app_data.data.KanjiData
@@ -10,8 +10,8 @@ import ua.syt0r.kanji.core.app_data.data.RadicalData
 import ua.syt0r.kanji.core.app_data.data.ReadingType
 import ua.syt0r.kanji.core.app_data.db.AppDataDatabase
 
-val AppDataDatabaseVersion: Long = BuildKonfig.appDataDatabaseVersion
-val AppDataDatabaseResourceName: String = BuildKonfig.appDataAssetName
+const val AppDataDatabaseVersion: Long = BuildConfig.appDataDatabaseVersion.toLong()
+const val AppDataDatabaseResourceName: String = BuildConfig.appDataAssetName
 
 interface AppDataDatabaseProvider {
     fun provideAsync(): Deferred<AppDataDatabase>

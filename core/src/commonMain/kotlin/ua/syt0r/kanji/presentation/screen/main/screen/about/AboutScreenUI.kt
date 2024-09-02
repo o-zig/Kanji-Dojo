@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ua.syt0r.kanji.BuildKonfig
+import ua.syt0r.kanji.BuildConfig
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.dialog.VersionChangeDialog
 
@@ -75,7 +75,7 @@ fun AboutScreenUI(
                 )
 
                 Text(
-                    text = resolveString { about.version(BuildKonfig.versionName) },
+                    text = resolveString { about.version(BuildConfig.versionName) },
                     style = MaterialTheme.typography.labelLarge
                 )
             }

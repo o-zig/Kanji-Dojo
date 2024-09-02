@@ -5,6 +5,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ua.syt0r.kanji.AndroidMainBuildConfig
 import ua.syt0r.kanji.core.japanese.KanaReading
 import kotlin.math.roundToLong
 

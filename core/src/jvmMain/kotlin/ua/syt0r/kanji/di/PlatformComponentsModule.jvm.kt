@@ -3,6 +3,7 @@ package ua.syt0r.kanji.di
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import ua.syt0r.kanji.JvmMainBuildConfig
 import ua.syt0r.kanji.core.app_data.AppDataDatabaseProvider
 import ua.syt0r.kanji.core.app_data.AppDataDatabaseProviderJvm
 import ua.syt0r.kanji.core.backup.JvmPlatformFileHandler
@@ -28,7 +29,11 @@ actual val platformComponentsModule: Module = module {
 
     factory { LoggerConfiguration(true) }
 
-    factory<KanaTtsManager> { JavaKanaTtsManager(Neural2BKanaVoiceData) }
+    factory<KanaTtsManager> {
+        JavaKanaTtsManager(
+            voiceData = Neural2BKanaVoiceData(JvmMainBuildConfig.kanaVoiceAssetName)
+        )
+    }
 
     single<AppDataDatabaseProvider> {
         AppDataDatabaseProviderJvm()

@@ -13,11 +13,14 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import ua.syt0r.kanji.AndroidMainBuildConfig
 import ua.syt0r.kanji.core.AndroidThemeManager
+import ua.syt0r.kanji.core.BuildConfig
 import ua.syt0r.kanji.core.app_data.AppDataDatabaseProvider
 import ua.syt0r.kanji.core.app_data.AppDataDatabaseProviderAndroid
 import ua.syt0r.kanji.core.backup.AndroidPlatformFileHandler
 import ua.syt0r.kanji.core.backup.PlatformFileHandler
+import ua.syt0r.kanji.core.logger.LoggerConfiguration
 import ua.syt0r.kanji.core.notification.ReminderNotificationContract
 import ua.syt0r.kanji.core.notification.ReminderNotificationHandleScheduledActionUseCase
 import ua.syt0r.kanji.core.notification.ReminderNotificationManager
@@ -35,12 +38,14 @@ val userPreferencesDataStoreQualifier = named("user_preferences_data_store")
 
 actual val platformComponentsModule: Module = module {
 
+    factory { LoggerConfiguration(isEnabled = BuildConfig.DEBUG) }
+
     factory { ExoPlayer.Builder(androidContext()).build() }
 
     factory<KanaTtsManager> {
         AndroidKanaTtsManager(
             player = get(),
-            voiceData = Neural2BKanaVoiceData
+            voiceData = Neural2BKanaVoiceData(AndroidMainBuildConfig.kanaVoiceAssetName)
         )
     }
 

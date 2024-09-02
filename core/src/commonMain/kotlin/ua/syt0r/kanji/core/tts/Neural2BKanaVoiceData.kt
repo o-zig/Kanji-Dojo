@@ -1,10 +1,8 @@
 package ua.syt0r.kanji.core.tts
 
-import ua.syt0r.kanji.BuildKonfig
-
-object Neural2BKanaVoiceData : KanaVoiceData {
-
-    override val assetFileName: String = BuildKonfig.kanaVoiceAssetName
+class Neural2BKanaVoiceData(
+    override val assetFileName: String
+) : KanaVoiceData {
 
     override val clips: List<KanaCharacterVoiceClipData>
         get() = timestamps.mapIndexed { index, (romaji, startSec) ->

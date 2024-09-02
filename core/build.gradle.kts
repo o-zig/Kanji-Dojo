@@ -1,23 +1,24 @@
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.compose")
     kotlin("plugin.serialization")
     id("com.android.library")
     id("org.jetbrains.compose")
-    id("com.codingfeline.buildkonfig")
+    alias(libs.plugins.build.config)
     id("app.cash.sqldelight")
     id("com.mikepenz.aboutlibraries.plugin")
 }
 
 kotlin {
+
     jvm()
     android()
+
+    jvmToolchain(17)
+
     sourceSets {
-        val koinVersion = "3.2.0"
-        val ktorVersion = "2.3.9"
         val commonMain by getting {
             dependencies {
                 api(compose.ui)
@@ -26,53 +27,50 @@ kotlin {
                 api(compose.material3)
                 api(compose.runtime)
                 api(compose.materialIconsExtended)
-                api("io.insert-koin:koin-core:$koinVersion")
-                api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-                implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.21")
-                implementation("dev.esnault.wanakana:wanakana-core:1.1.1")
+                api(libs.koin.core)
+                api(libs.kotlinx.datetime)
+                api(libs.kotlinx.serialization.json)
+                implementation(libs.kotlin.reflect)
+                implementation(libs.wanakana.core)
 
-                api("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                api(libs.ktor.client.core)
+                implementation(libs.ktor.client.cio)
 
-                api("com.mikepenz:aboutlibraries-core:11.2.0")
-                implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.0")
+                api(libs.aboutlibraries.core)
+                implementation(libs.aboutlibraries.compose.m3)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                // todo remove, need to updated kotlin later https://youtrack.jetbrains.com/issue/KT-62368
-                implementation(kotlin("test-junit5"))
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation("app.cash.sqldelight:android-driver:2.0.0")
+                implementation(libs.sqldelight.android.driver)
 
-                val lifecycleVersion = "2.8.1"
-                api("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-                api("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+                api(libs.lifecycle.viewmodel.ktx)
+                api(libs.lifecycle.livedata.ktx)
 
-                implementation("androidx.work:work-runtime-ktx:2.9.0")
+                implementation(libs.work.runtime.ktx)
 
-                api("io.insert-koin:koin-android:$koinVersion")
-                api("io.insert-koin:koin-androidx-compose:$koinVersion")
+                api(libs.koin.android)
+                api(libs.koin.androidx.compose)
 
-                implementation("androidx.navigation:navigation-compose:2.7.7")
-                api("androidx.activity:activity-compose:1.9.0")
-                api("androidx.datastore:datastore-preferences:1.1.1")
+                implementation(libs.navigation.compose)
+                api(libs.activity.compose)
+                api(libs.datastore.preferences)
                 api(compose.uiTooling)
 
-                api("androidx.core:core-ktx:1.13.1")
-                api("androidx.appcompat:appcompat:1.7.0")
-                implementation("androidx.media3:media3-exoplayer:1.3.1")
+                api(libs.core.ktx)
+                api(libs.appcompat)
+                implementation(libs.media3.exoplayer)
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
+                implementation(libs.sqldelight.jvm.sqlite.driver)
             }
         }
     }
@@ -104,14 +102,9 @@ android {
         assets.srcDir("src/commonMain/resources")
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    buildFeatures { compose = true }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2"
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -120,10 +113,6 @@ android {
         }
     }
 
-}
-
-compose {
-    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.5.2")
 }
 
 compose.desktop {
@@ -137,47 +126,29 @@ compose.desktop {
     }
 }
 
-buildkonfig {
+buildConfig {
+
     packageName = "ua.syt0r.kanji"
 
+    buildConfigField("versionCode", AppVersion.versionCode.toLong())
+    buildConfigField("versionName", AppVersion.versionName)
+    buildConfigField("appDataAssetName", PrepareKanjiDojoAssetsTask.AppDataAssetFileName)
+    buildConfigField("appDataDatabaseVersion", PrepareKanjiDojoAssetsTask.AppDataDatabaseVersion)
+
     val kanaVoiceFieldName = "kanaVoiceAssetName"
-
-    defaultConfigs {
-        buildConfigField(LONG, "versionCode", AppVersion.versionCode.toString())
-        buildConfigField(STRING, "versionName", AppVersion.versionName)
+    sourceSets.getByName("androidMain") {
         buildConfigField(
-            type = STRING,
-            name = "appDataAssetName",
-            value = PrepareKanjiDojoAssetsTask.AppDataAssetFileName
-        )
-        buildConfigField(
-            type = LONG,
-            name = "appDataDatabaseVersion",
-            value = PrepareKanjiDojoAssetsTask.AppDataDatabaseVersion.toString()
-        )
-        buildConfigField(
-            type = STRING,
             name = kanaVoiceFieldName,
-            value = "Will be overridden in target config"
+            value = PrepareKanjiDojoAssetsTask.KanaVoice1AndroidFileName
+        )
+    }
+    sourceSets.getByName("jvmMain") {
+        buildConfigField(
+            name = kanaVoiceFieldName,
+            value = PrepareKanjiDojoAssetsTask.KanaVoice1JvmFileName
         )
     }
 
-    targetConfigs {
-        create("android") {
-            buildConfigField(
-                type = STRING,
-                name = kanaVoiceFieldName,
-                value = PrepareKanjiDojoAssetsTask.KanaVoice1AndroidFileName
-            )
-        }
-        create("jvm") {
-            buildConfigField(
-                type = STRING,
-                name = kanaVoiceFieldName,
-                value = PrepareKanjiDojoAssetsTask.KanaVoice1JvmFileName
-            )
-        }
-    }
 }
 
 tasks.withType<Test> {
