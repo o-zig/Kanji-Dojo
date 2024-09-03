@@ -1,6 +1,7 @@
 package ua.syt0r.kanji.core.user_data.practice
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import ua.syt0r.kanji.core.user_data.practice.db.UserDataDatabaseManager
 import ua.syt0r.kanji.core.userdata.db.Review_history
 import kotlin.time.Duration
@@ -13,6 +14,7 @@ interface ReviewHistoryRepository {
     suspend fun getTotalReviewsCount(): Long
     suspend fun getUniqueReviewItemsCount(practiceTypes: List<Long>): Long
     suspend fun getTotalPracticeTime(singleReviewDurationLimit: Long): Duration
+    suspend fun getStreaks(): List<StreakData>
 }
 
 data class ReviewHistoryItem(
@@ -23,6 +25,12 @@ data class ReviewHistoryItem(
     val grade: Int,
     val mistakes: Int,
     val deckId: Long,
+)
+
+class StreakData(
+    val start: LocalDate,
+    val end: LocalDate,
+    val length: Int
 )
 
 class SqlDelightReviewHistoryRepository(
@@ -81,6 +89,17 @@ class SqlDelightReviewHistoryRepository(
             ?.SUM
             ?.milliseconds
             ?: Duration.ZERO
+    }
+
+    override suspend fun getStreaks() = userDataDatabaseManager.runTransaction {
+        getReviewStreaks().executeAsList()
+            .map {
+                StreakData(
+                    start = LocalDate.parse(it.start_date!!),
+                    end = LocalDate.parse(it.end_date!!),
+                    length = it.sequence_length.toInt()
+                )
+            }
     }
 
     private fun Review_history.converted(): ReviewHistoryItem = ReviewHistoryItem(

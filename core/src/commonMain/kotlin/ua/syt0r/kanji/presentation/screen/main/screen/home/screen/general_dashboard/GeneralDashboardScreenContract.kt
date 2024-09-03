@@ -17,7 +17,10 @@ interface GeneralDashboardScreenContract {
             val showAppVersionChangeHint: MutableState<Boolean>,
             val showTutorialHint: MutableState<Boolean>,
             val letterDecksData: LetterDecksData,
-            val vocabDecksInfo: VocabDecksData
+            val vocabDecksInfo: VocabDecksData,
+            val streakCalendarData: List<StreakCalendarItem>,
+            val currentStreak: Int,
+            val longestStreak: Int
         ) : ScreenState
 
     }

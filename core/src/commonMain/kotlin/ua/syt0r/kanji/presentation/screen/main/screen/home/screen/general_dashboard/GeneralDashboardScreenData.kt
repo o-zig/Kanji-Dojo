@@ -1,6 +1,7 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard
 
 import androidx.compose.runtime.MutableState
+import kotlinx.datetime.LocalDate
 import ua.syt0r.kanji.presentation.common.ScreenLetterPracticeType
 import ua.syt0r.kanji.presentation.common.ScreenVocabPracticeType
 
@@ -35,4 +36,9 @@ sealed interface VocabDecksData {
 
 data class VocabDecksStudyProgress(
     val dueToDeckIdMap: Map<Long, Long>,
+)
+
+data class StreakCalendarItem(
+    val date: LocalDate,
+    val anyReviews: Boolean
 )

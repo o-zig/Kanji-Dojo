@@ -1,9 +1,15 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,14 +30,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
@@ -40,10 +48,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -54,13 +64,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ua.syt0r.kanji.presentation.common.ScreenLetterPracticeType
 import ua.syt0r.kanji.presentation.common.ScreenPracticeType
 import ua.syt0r.kanji.presentation.common.ScreenVocabPracticeType
+import ua.syt0r.kanji.presentation.common.resources.icon.Discord
+import ua.syt0r.kanji.presentation.common.resources.icon.ExtraIcons
+import ua.syt0r.kanji.presentation.common.resources.icon.YouTube
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
 import ua.syt0r.kanji.presentation.common.theme.snapSizeTransform
@@ -152,8 +170,8 @@ fun GeneralDashboardScreenUI(
             when (it.letterDecksData) {
                 is LetterDecksData.Data -> {
                     DashboardItemLayout(
-                        title = letterDecksTitle,
-                        practiceTypeContent = {
+                        title = { Text(letterDecksTitle) },
+                        middleContent = {
                             PracticeTypeSelector(
                                 selectedType = it.letterDecksData.practiceType,
                                 availablePracticeTypes = ScreenLetterPracticeType.values().toList(),
@@ -201,7 +219,7 @@ fun GeneralDashboardScreenUI(
 
                 LetterDecksData.NoDecks -> {
                     DashboardItemLayout(
-                        title = letterDecksTitle,
+                        title = { Text(letterDecksTitle) },
                         buttonsContent = {
                             GeneralDashboardNoDecksButton(
                                 onClick = navigateToCreateLetterDeck,
@@ -219,8 +237,8 @@ fun GeneralDashboardScreenUI(
                 is VocabDecksData.Data -> {
 
                     DashboardItemLayout(
-                        title = vocabDecksTitle,
-                        practiceTypeContent = {
+                        title = { Text(vocabDecksTitle) },
+                        middleContent = {
                             PracticeTypeSelector(
                                 selectedType = it.vocabDecksInfo.practiceType,
                                 availablePracticeTypes = ScreenVocabPracticeType.values().toList(),
@@ -257,7 +275,7 @@ fun GeneralDashboardScreenUI(
                 VocabDecksData.NoDecks -> {
 
                     DashboardItemLayout(
-                        title = vocabDecksTitle,
+                        title = { Text(vocabDecksTitle) },
                         buttonsContent = {
                             GeneralDashboardNoDecksButton(
                                 onClick = navigateToCreateVocabDeck,
@@ -266,6 +284,90 @@ fun GeneralDashboardScreenUI(
                         }
                     )
                 }
+            }
+
+            DashboardItemLayout(
+                title = {
+                    Text("Daily Streak")
+                    StreakIndicator(it.currentStreak)
+                },
+                buttonsContent = {
+                    Column(
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .weight(1f)
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        Text(
+                            text = "Current Streak",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = it.currentStreak.toString(),
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (it.currentStreak > it.longestStreak) {
+                                Icon(Icons.AutoMirrored.Filled.TrendingUp, null)
+                            }
+                        }
+
+                    }
+
+                    Column(
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .weight(1f)
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        Text(
+                            text = "Longest Streak",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light
+                        )
+
+                        Text(
+                            text = it.longestStreak.toString(),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+
+                }
+            )
+
+            StreakCalendar(it.streakCalendarData)
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                modifier = ListContentModifier
+                    .height(IntrinsicSize.Min)
+                    .padding(top = 10.dp, bottom = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+
+                SocialIconButton(
+                    imageVector = ExtraIcons.YouTube,
+                    onClick = {}
+                )
+
+                SocialIconButton(
+                    imageVector = ExtraIcons.Discord,
+                    onClick = {}
+                )
+
             }
 
         }
@@ -345,37 +447,37 @@ private fun HeaderButton(
     }
 }
 
+private val ListContentModifier = Modifier.fillMaxWidth()
+    .wrapContentWidth()
+    .width(400.dp)
+    .padding(horizontal = 20.dp)
+
 @Composable
 private fun DashboardItemLayout(
-    title: String,
-    practiceTypeContent: (@Composable () -> Unit)? = null,
+    title: @Composable RowScope.() -> Unit,
+    middleContent: (@Composable () -> Unit)? = null,
     buttonsContent: @Composable RowScope.() -> Unit
 ) {
 
     Column(
-        modifier = Modifier.fillMaxWidth()
-            .wrapContentWidth()
-            .widthIn(max = 400.dp)
-            .padding(vertical = 8.dp),
+        modifier = ListContentModifier.padding(vertical = 8.dp),
     ) {
 
         Row(
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.height(IntrinsicSize.Min)
         ) {
-            Text(
-                text = resolveString { title },
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
+            CompositionLocalProvider(
+                LocalTextStyle provides MaterialTheme.typography.headlineSmall
+            ) {
+                title()
+            }
         }
 
-        if (practiceTypeContent != null) practiceTypeContent.invoke()
+        if (middleContent != null) middleContent.invoke()
         else Spacer(Modifier.height(8.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .height(IntrinsicSize.Max),
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
 
@@ -393,7 +495,7 @@ private fun <T : ScreenPracticeType> PracticeTypeSelector(
 ) {
 
     Row(
-        modifier = Modifier.padding(horizontal = 20.dp),
+        modifier = Modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
@@ -516,6 +618,133 @@ fun GeneralDashboardNoDecksButton(
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
         }
 
+
+    }
+}
+
+
+@Composable
+private fun SocialIconButton(imageVector: ImageVector, onClick: () -> Unit) {
+    Icon(
+        imageVector = imageVector,
+        contentDescription = null,
+        modifier = Modifier.aspectRatio(1f, true)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick)
+            .padding(4.dp),
+        tint = MaterialTheme.colorScheme.onSurface
+    )
+}
+
+private val WeekDayLabels = listOf("月", "火", "水", "木", "金", "土", "日")
+
+@Composable
+private fun StreakCalendar(items: List<StreakCalendarItem>) {
+    Row(
+        modifier = ListContentModifier
+            .clip(
+                MaterialTheme.shapes.medium.copy(
+                    topStart = CornerSize(0),
+                    bottomStart = CornerSize(0)
+                )
+            )
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(8.dp)
+            .height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+
+        items.forEach { (date, anyReviews) ->
+
+            val bgColor: Color
+            val textColor: Color
+
+            when {
+                anyReviews -> {
+                    bgColor = MaterialTheme.colorScheme.primary
+                    textColor = MaterialTheme.colorScheme.onPrimary
+                }
+
+                else -> {
+                    bgColor = MaterialTheme.colorScheme.surfaceVariant
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant
+                }
+            }
+
+            Column(
+                modifier = Modifier.fillMaxHeight()
+                    .weight(1f)
+                    .wrapContentSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(
+                    Modifier
+                        .background(bgColor, MaterialTheme.shapes.medium)
+                        .padding(4.dp)
+                        .aspectRatio(1f)
+                        .wrapContentSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = WeekDayLabels[date.dayOfWeek.value - 1],
+                        modifier = Modifier,
+                        color = textColor,
+                        style = TextStyle(
+                            lineHeightStyle = LineHeightStyle(
+                                LineHeightStyle.Alignment.Center,
+                                LineHeightStyle.Trim.Both
+                            ),
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 18.sp
+                        )
+                    )
+                }
+                Text(
+                    text = date.dayOfMonth.toString(),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+
+        }
+
+    }
+}
+
+@Composable
+private fun StreakIndicator(currentStreakLength: Int) {
+    val transition = rememberInfiniteTransition()
+    val progress = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1200), RepeatMode.Reverse)
+    )
+
+    val innerCircleColor = lerp(
+        start = MaterialTheme.colorScheme.surfaceVariant.convert(ColorSpaces.Oklab),
+        stop = MaterialTheme.colorScheme.primary.convert(ColorSpaces.Oklab),
+        fraction = when (currentStreakLength) {
+            0 -> 0f
+            1, 2 -> 0.6f
+            3, 4 -> 0.75f
+            5, 6 -> 0.9f
+            else -> 1f
+        }
+    )
+    val outerCircleColor = innerCircleColor.copy(innerCircleColor.alpha * 0.3f)
+
+    Canvas(
+        modifier = Modifier.aspectRatio(1f, true)
+    ) {
+
+        val innerCircleRadius = size.maxDimension * 0.3f
+        val outerCircleRadius =
+            size.maxDimension * 0.35f + size.maxDimension * 0.1f * progress.value
+
+        drawCircle(outerCircleColor, outerCircleRadius)
+        drawCircle(innerCircleColor, innerCircleRadius)
 
     }
 }

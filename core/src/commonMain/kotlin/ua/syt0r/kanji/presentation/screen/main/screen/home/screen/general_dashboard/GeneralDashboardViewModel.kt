@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import ua.syt0r.kanji.BuildKonfig
+import ua.syt0r.kanji.BuildConfig
 import ua.syt0r.kanji.core.RefreshableData
 import ua.syt0r.kanji.core.analytics.AnalyticsManager
 import ua.syt0r.kanji.core.user_data.preferences.UserPreferencesRepository
@@ -46,7 +46,7 @@ class GeneralDashboardViewModel(
         snapshotFlow { showAppVersionChangeHint.value }
             .onEach {
                 userPreferencesRepository.lastAppVersionWhenChangesDialogShown
-                    .set(BuildKonfig.versionName)
+                    .set(BuildConfig.versionName)
             }
             .launchIn(viewModelScope)
 

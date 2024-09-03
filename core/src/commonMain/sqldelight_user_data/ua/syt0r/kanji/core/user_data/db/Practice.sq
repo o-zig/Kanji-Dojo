@@ -178,3 +178,27 @@ WHERE practice_type IN :practiceTypes;
 getTotalReviewsDuration:
 SELECT SUM(CASE WHEN duration > :reviewDurationLimit THEN :reviewDurationLimit ELSE duration END)
 FROM review_history;
+
+getReviewStreaks:
+WITH DateList AS (
+    SELECT DISTINCT date(round(timestamp / 1000), 'unixepoch') AS date
+    FROM review_history
+),
+DateWithLag AS (
+    SELECT
+    date,
+    JULIANDAY(date) - (
+        SELECT COUNT(*)
+        FROM DateList AS inner_dates
+        WHERE inner_dates.date <= outer_dates.date
+    ) AS day_group
+    FROM DateList AS outer_dates
+),
+ContinuousGroups AS (
+    SELECT MIN(date) AS start_date, MAX(date) AS end_date, COUNT(*) AS sequence_length
+    FROM DateWithLag
+    GROUP BY day_group
+)
+SELECT *
+FROM ContinuousGroups
+ORDER BY end_date DESC;

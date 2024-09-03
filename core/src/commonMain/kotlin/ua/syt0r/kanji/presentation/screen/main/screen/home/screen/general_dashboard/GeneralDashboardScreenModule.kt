@@ -11,7 +11,9 @@ val generalDashboardScreenModule = module {
         DefaultSubscribeOnGeneralDashboardScreenDataUseCase(
             letterSrsManager = get(),
             vocabSrsManager = get(),
-            preferencesRepository = get()
+            preferencesRepository = get(),
+            reviewHistoryRepository = get(),
+            timeUtils = get()
         )
     }
 
