@@ -5,14 +5,12 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.datetime.Instant
+import ua.syt0r.kanji.core.analytics.AnalyticsManager
 import ua.syt0r.kanji.core.srs.SrsItemRepository
 import ua.syt0r.kanji.core.srs.SrsScheduler
 import ua.syt0r.kanji.core.time.TimeUtils
-import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryItem
 import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryRepository
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.BasePracticeQueue
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswer
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswers
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeQueue
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeItemData
@@ -29,11 +27,18 @@ class DefaultLetterPracticeQueue(
     private val coroutineScope: CoroutineScope,
     timeUtils: TimeUtils,
     srsItemRepository: SrsItemRepository,
+    reviewHistoryRepository: ReviewHistoryRepository,
     srsScheduler: SrsScheduler,
     private val getQueueItemDataUseCase: GetLetterPracticeQueueItemDataUseCase,
-    private val reviewHistoryRepository: ReviewHistoryRepository
-) : BaseLetterPracticeQueue(coroutineScope, timeUtils, srsItemRepository, srsScheduler),
-    LetterPracticeQueue {
+    analyticsManager: AnalyticsManager
+) : BaseLetterPracticeQueue(
+    coroutineScope = coroutineScope,
+    timeUtils = timeUtils,
+    srsScheduler = srsScheduler,
+    srsItemRepository = srsItemRepository,
+    reviewHistoryRepository = reviewHistoryRepository,
+    analyticsManager = analyticsManager
+), LetterPracticeQueue {
 
     override suspend fun LetterPracticeQueueItemDescriptor.toQueueItem(): LetterPracticeQueueItem {
         val srsCardKey = practiceType.toSrsKey(character)
@@ -74,24 +79,6 @@ class DefaultLetterPracticeQueue(
 
             else -> error("Unsupported")
         }
-    }
-
-    override suspend fun saveReviewHistory(
-        queueItem: LetterPracticeQueueItem,
-        answer: PracticeAnswer,
-        reviewStart: Instant
-    ) {
-        val instant = timeUtils.now()
-        val item = ReviewHistoryItem(
-            key = queueItem.srsCardKey.itemKey,
-            practiceType = queueItem.srsCardKey.practiceType,
-            timestamp = instant,
-            duration = instant - reviewStart,
-            grade = answer.srsAnswer.grade,
-            mistakes = answer.mistakes,
-            deckId = queueItem.deckId
-        )
-        reviewHistoryRepository.addReview(item)
     }
 
     override fun getLoadingState(): LetterPracticeQueueState {

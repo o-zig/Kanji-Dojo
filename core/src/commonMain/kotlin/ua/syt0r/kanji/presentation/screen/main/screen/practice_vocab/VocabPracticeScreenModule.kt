@@ -56,7 +56,8 @@ val vocabPracticeScreenModule = module {
             getReadingReviewStateUseCase = get(),
             getWritingReviewStateUseCase = get(),
             getSummaryItemUseCase = get(),
-            reviewHistoryRepository = get()
+            reviewHistoryRepository = get(),
+            analyticsManager = get()
         )
     }
 

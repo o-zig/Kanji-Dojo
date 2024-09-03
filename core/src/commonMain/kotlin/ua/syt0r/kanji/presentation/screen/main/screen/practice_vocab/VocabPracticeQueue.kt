@@ -4,14 +4,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.datetime.Instant
+import ua.syt0r.kanji.core.analytics.AnalyticsManager
 import ua.syt0r.kanji.core.srs.SrsItemRepository
 import ua.syt0r.kanji.core.srs.SrsScheduler
 import ua.syt0r.kanji.core.time.TimeUtils
-import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryItem
 import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryRepository
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.BasePracticeQueue
-import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswer
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswers
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeQueue
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_vocab.data.VocabPracticeQueueItem
@@ -37,9 +35,16 @@ class DefaultVocabPracticeQueue(
     private val getReadingReviewStateUseCase: GetVocabPracticeReadingDataUseCase,
     private val getWritingReviewStateUseCase: GetVocabPracticeWritingDataUseCase,
     private val getSummaryItemUseCase: GetVocabPracticeSummaryItemUseCase,
-    private val reviewHistoryRepository: ReviewHistoryRepository
-) : BaseVocabPracticeQueue(coroutineScope, timeUtils, srsItemRepository, srsScheduler),
-    VocabPracticeQueue {
+    reviewHistoryRepository: ReviewHistoryRepository,
+    analyticsManager: AnalyticsManager
+) : BaseVocabPracticeQueue(
+    coroutineScope = coroutineScope,
+    timeUtils = timeUtils,
+    srsItemRepository = srsItemRepository,
+    reviewHistoryRepository = reviewHistoryRepository,
+    srsScheduler = srsScheduler,
+    analyticsManager = analyticsManager
+), VocabPracticeQueue {
 
     override suspend fun VocabPracticeQueueItemDescriptor.toQueueItem(): VocabPracticeQueueItem {
         val srsCardKey = practiceType.dataType.toSrsKey(wordId)
@@ -66,24 +71,6 @@ class DefaultVocabPracticeQueue(
                 }
             }
         )
-    }
-
-    override suspend fun saveReviewHistory(
-        queueItem: VocabPracticeQueueItem,
-        answer: PracticeAnswer,
-        reviewStart: Instant
-    ) {
-        val instant = timeUtils.now()
-        val reviewHistoryItem = ReviewHistoryItem(
-            key = queueItem.srsCardKey.itemKey,
-            practiceType = queueItem.srsCardKey.practiceType,
-            timestamp = instant,
-            duration = instant - reviewStart,
-            grade = answer.srsAnswer.grade,
-            mistakes = answer.mistakes,
-            deckId = queueItem.deckId
-        )
-        reviewHistoryRepository.addReview(reviewHistoryItem)
     }
 
     override fun createSummaryItem(queueItem: VocabPracticeQueueItem): VocabSummaryItem {

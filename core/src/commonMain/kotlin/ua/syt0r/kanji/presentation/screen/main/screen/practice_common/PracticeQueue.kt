@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
+import ua.syt0r.kanji.core.analytics.AnalyticsManager
 import ua.syt0r.kanji.core.debounceFirst
 import ua.syt0r.kanji.core.srs.SrsAnswers
 import ua.syt0r.kanji.core.srs.SrsCard
@@ -16,6 +17,8 @@ import ua.syt0r.kanji.core.srs.SrsCardKey
 import ua.syt0r.kanji.core.srs.SrsItemRepository
 import ua.syt0r.kanji.core.srs.SrsScheduler
 import ua.syt0r.kanji.core.time.TimeUtils
+import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryItem
+import ua.syt0r.kanji.core.user_data.practice.ReviewHistoryRepository
 import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -57,8 +60,10 @@ interface PracticeSummaryItem {
 abstract class BasePracticeQueue<State, Descriptor, QueueItem, SummaryItem>(
     coroutineScope: CoroutineScope,
     protected val timeUtils: TimeUtils,
-    protected val srsItemRepository: SrsItemRepository,
     protected val srsScheduler: SrsScheduler,
+    protected val srsItemRepository: SrsItemRepository,
+    private val reviewHistoryRepository: ReviewHistoryRepository,
+    private val analyticsManager: AnalyticsManager
 ) : PracticeQueue<State, Descriptor>
         where QueueItem : PracticeQueueItem<QueueItem>,
               SummaryItem : PracticeSummaryItem {
@@ -85,11 +90,6 @@ abstract class BasePracticeQueue<State, Descriptor, QueueItem, SummaryItem>(
 
     protected abstract suspend fun Descriptor.toQueueItem(): QueueItem
     protected abstract fun createSummaryItem(queueItem: QueueItem): SummaryItem
-    protected abstract suspend fun saveReviewHistory(
-        queueItem: QueueItem,
-        answer: PracticeAnswer,
-        reviewStart: Instant
-    )
 
     protected abstract fun getLoadingState(): State
     protected abstract suspend fun getReviewState(item: QueueItem, answers: PracticeAnswers): State
@@ -132,16 +132,18 @@ abstract class BasePracticeQueue<State, Descriptor, QueueItem, SummaryItem>(
 
         saveSummaryData(updatedItem)
 
+        val instant = timeUtils.now()
+        val reviewDuration = instant - currentReviewStartInstant
+
         if (answer.srsAnswer.card.interval < 1.days) {
             placeItemBackToQueue(updatedItem)
         }
 
-        val lastReviewStart = currentReviewStartInstant
-
         updateState()
 
         srsItemRepository.update(item.srsCardKey, answer.srsAnswer.card)
-        saveReviewHistory(item, answer, lastReviewStart)
+        saveReviewHistory(item, answer, instant, reviewDuration)
+        reportReview(updatedItem, answer, reviewDuration)
     }
 
     private suspend fun updateState() {
@@ -190,6 +192,37 @@ abstract class BasePracticeQueue<State, Descriptor, QueueItem, SummaryItem>(
     private fun saveSummaryData(queueItem: QueueItem) {
         val summaryItem = createSummaryItem(queueItem)
         summaryItems[queueItem.srsCardKey] = summaryItem
+    }
+
+    private suspend fun saveReviewHistory(
+        queueItem: QueueItem,
+        answer: PracticeAnswer,
+        reviewStart: Instant,
+        reviewDuration: Duration
+    ) {
+        val item = ReviewHistoryItem(
+            key = queueItem.srsCardKey.itemKey,
+            practiceType = queueItem.srsCardKey.practiceType,
+            timestamp = reviewStart,
+            duration = reviewDuration,
+            grade = answer.srsAnswer.grade,
+            mistakes = answer.mistakes,
+            deckId = queueItem.deckId
+        )
+        reviewHistoryRepository.addReview(item)
+    }
+
+    private fun reportReview(
+        item: QueueItem,
+        answer: PracticeAnswer,
+        reviewDuration: Duration
+    ) {
+        analyticsManager.sendEvent("review") {
+            put("key", item.srsCardKey.itemKey)
+            put("practice_type", item.srsCardKey.practiceType)
+            put("duration", reviewDuration.inWholeMilliseconds)
+            put("mistakes", answer.mistakes)
+        }
     }
 
     companion object {

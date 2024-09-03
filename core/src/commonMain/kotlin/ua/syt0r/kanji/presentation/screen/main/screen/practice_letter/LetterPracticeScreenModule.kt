@@ -57,7 +57,8 @@ val letterPracticeScreenModule = module {
             srsItemRepository = get(),
             srsScheduler = get(),
             getQueueItemDataUseCase = get(),
-            reviewHistoryRepository = get()
+            reviewHistoryRepository = get(),
+            analyticsManager = get()
         )
     }
 
