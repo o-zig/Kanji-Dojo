@@ -290,7 +290,7 @@ fun GeneralDashboardScreenUI(
 
             DashboardItemLayout(
                 title = {
-                    Text("Daily Streak")
+                    Text(text = resolveString { generalDashboard.streakTitle })
                     StreakIndicator(it.currentStreak)
                 },
                 buttonsContent = {
@@ -304,7 +304,7 @@ fun GeneralDashboardScreenUI(
                     ) {
 
                         Text(
-                            text = "Current Streak",
+                            text = resolveString { generalDashboard.currentStreakLabel },
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light
                         )
@@ -317,7 +317,8 @@ fun GeneralDashboardScreenUI(
                                 style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.weight(1f)
                             )
-                            if (it.currentStreak > it.longestStreak) {
+
+                            if (it.currentStreak >= it.longestStreak) {
                                 Icon(Icons.AutoMirrored.Filled.TrendingUp, null)
                             }
                         }
@@ -334,7 +335,7 @@ fun GeneralDashboardScreenUI(
                     ) {
 
                         Text(
-                            text = "Longest Streak",
+                            text = resolveString { generalDashboard.longestStreakLabel },
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light
                         )
@@ -699,7 +700,7 @@ private fun StreakCalendar(items: List<StreakCalendarItem>) {
                                 LineHeightStyle.Alignment.Center,
                                 LineHeightStyle.Trim.Both
                             ),
-                            fontWeight = FontWeight.ExtraBold,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 18.sp
                         )
                     )

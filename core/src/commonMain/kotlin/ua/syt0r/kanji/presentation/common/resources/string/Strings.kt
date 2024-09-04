@@ -101,6 +101,10 @@ interface GeneralDashboardStrings {
     val buttonNew: String
     val buttonDue: String
     val buttonAll: String
+
+    val streakTitle: String
+    val currentStreakLabel: String
+    val longestStreakLabel: String
 }
 
 interface TutorialDialogStrings {

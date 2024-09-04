@@ -94,6 +94,9 @@ object EnglishGeneralDashboardStrings : GeneralDashboardStrings {
     override val buttonNew: String = "New"
     override val buttonDue: String = "Due"
     override val buttonAll: String = "New & Due"
+    override val streakTitle: String = "Daily Streak"
+    override val currentStreakLabel: String = "Current Streak"
+    override val longestStreakLabel: String = "Longest Streak"
 }
 
 object EnglishLettersDashboardStrings : LettersDashboardStrings {

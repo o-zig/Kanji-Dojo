@@ -83,6 +83,9 @@ object JapaneseGeneralDashboardStrings : GeneralDashboardStrings {
     override val buttonNew: String = "学習"
     override val buttonDue: String = "復習"
     override val buttonAll: String = "学習 & 復習"
+    override val streakTitle: String = "連続記録"
+    override val currentStreakLabel: String = "現在の連続記録"
+    override val longestStreakLabel: String = "最長連続記録"
 }
 
 object JapaneseHomeStrings : HomeStrings {
