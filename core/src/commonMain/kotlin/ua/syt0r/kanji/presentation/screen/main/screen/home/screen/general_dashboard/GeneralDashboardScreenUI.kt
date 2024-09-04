@@ -100,7 +100,9 @@ fun GeneralDashboardScreenUI(
     navigateToCreateLetterDeck: () -> Unit,
     navigateToCreateVocabDeck: () -> Unit,
     navigateToLetterPractice: (MainDestination.LetterPractice) -> Unit,
-    navigateToVocabPractice: (MainDestination.VocabPractice) -> Unit
+    navigateToVocabPractice: (MainDestination.VocabPractice) -> Unit,
+    youtubeClick: () -> Unit,
+    discordClick: () -> Unit
 ) {
 
     var showTutorialDialog by remember { mutableStateOf(false) }
@@ -360,12 +362,12 @@ fun GeneralDashboardScreenUI(
 
                 SocialIconButton(
                     imageVector = ExtraIcons.YouTube,
-                    onClick = {}
+                    onClick = youtubeClick
                 )
 
                 SocialIconButton(
                     imageVector = ExtraIcons.Discord,
-                    onClick = {}
+                    onClick = discordClick
                 )
 
             }
