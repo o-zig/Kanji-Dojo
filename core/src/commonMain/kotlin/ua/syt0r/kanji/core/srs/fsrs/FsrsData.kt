@@ -16,19 +16,6 @@ data class FsrsCard(
         is FsrsCardParams.Existing -> params.reviewTime
     }
 
-    fun next(
-        status: FsrsCardStatus = this.status,
-        params: FsrsCardParams = this.params,
-        interval: Duration = this.interval,
-        lapses: Int = this.lapses
-    ): FsrsCard = copy(
-        status = status,
-        params = params,
-        interval = interval,
-        lapses = lapses,
-        repeats = repeats + 1
-    )
-
 }
 
 sealed interface FsrsCardParams {

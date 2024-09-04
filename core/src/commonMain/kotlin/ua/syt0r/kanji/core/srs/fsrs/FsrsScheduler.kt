@@ -1,6 +1,14 @@
 package ua.syt0r.kanji.core.srs.fsrs
 
 import kotlinx.datetime.Instant
+import ua.syt0r.kanji.core.srs.fsrs.FsrsCardStatus.Learning
+import ua.syt0r.kanji.core.srs.fsrs.FsrsCardStatus.New
+import ua.syt0r.kanji.core.srs.fsrs.FsrsCardStatus.Relearning
+import ua.syt0r.kanji.core.srs.fsrs.FsrsCardStatus.Review
+import ua.syt0r.kanji.core.srs.fsrs.FsrsReviewRating.Again
+import ua.syt0r.kanji.core.srs.fsrs.FsrsReviewRating.Easy
+import ua.syt0r.kanji.core.srs.fsrs.FsrsReviewRating.Good
+import ua.syt0r.kanji.core.srs.fsrs.FsrsReviewRating.Hard
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -15,7 +23,7 @@ class DefaultFsrsScheduler(
 ) : FsrsScheduler {
 
     override fun newCard() = FsrsCard(
-        status = FsrsCardStatus.New,
+        status = New,
         params = FsrsCardParams.New,
         interval = Duration.ZERO,
         lapses = 0,
@@ -23,111 +31,62 @@ class DefaultFsrsScheduler(
     )
 
     override fun schedule(card: FsrsCard, reviewTime: Instant): FsrsAnswers {
+
+        fun FsrsCard.nextCard(
+            status: FsrsCardStatus,
+            rating: FsrsReviewRating,
+            overriddenInterval: Duration? = null,
+            incrementLapses: Boolean = false
+        ): FsrsCard {
+            val updatedParams = fsrsAlgorithm.updatedParams(this, rating, reviewTime)
+            return FsrsCard(
+                status = status,
+                params = updatedParams,
+                interval = overriddenInterval ?: fsrsAlgorithm.nextInterval(updatedParams),
+                lapses = if (incrementLapses) lapses + 1 else lapses,
+                repeats = repeats + 1
+            )
+        }
+
         val again: FsrsCard
         val hard: FsrsCard
         val good: FsrsCard
         val easy: FsrsCard
 
         when (card.status) {
-            FsrsCardStatus.New -> {
-                again = card.next(
-                    status = FsrsCardStatus.Learning,
-                    params = fsrsAlgorithm.updatedParams(
-                        card.params,
-                        FsrsReviewRating.Again,
-                        reviewTime
-                    ),
-                    interval = 1.minutes
-                )
-                hard = card.next(
-                    status = FsrsCardStatus.Learning,
-                    params = fsrsAlgorithm.updatedParams(
-                        card.params,
-                        FsrsReviewRating.Hard,
-                        reviewTime
-                    ), interval = 5.minutes
-                )
-                good = card.next(
-                    status = FsrsCardStatus.Learning,
-                    params = fsrsAlgorithm.updatedParams(
-                        card.params,
-                        FsrsReviewRating.Good,
-                        reviewTime
-                    ), interval = 10.minutes
-                )
-
-                val easyParams = fsrsAlgorithm.updatedParams(
-                    cardParams = FsrsCardParams.New,
-                    rating = FsrsReviewRating.Easy,
-                    reviewTime = reviewTime
-                )
-                easy = card.next(
-                    status = FsrsCardStatus.Review,
-                    params = easyParams,
-                    interval = fsrsAlgorithm.nextInterval(easyParams)
-                )
+            New -> {
+                again = card.nextCard(Learning, Again, 1.minutes)
+                hard = card.nextCard(Learning, Hard, 5.minutes)
+                good = card.nextCard(Learning, Good, 10.minutes)
+                easy = card.nextCard(Review, Easy)
             }
 
-            FsrsCardStatus.Learning,
-            FsrsCardStatus.Relearning -> {
-                again = card.next(interval = 5.minutes)
-                hard = card.next(interval = 10.minutes)
+            Learning,
+            Relearning -> {
+                again = card.nextCard(card.status, Again, 5.minutes)
+                hard = card.nextCard(card.status, Hard, 10.minutes)
+                good = card.nextCard(Review, Good)
 
-                val goodParams = fsrsAlgorithm.updatedParams(
-                    cardParams = card.params,
-                    rating = FsrsReviewRating.Good,
-                    reviewTime = reviewTime
-                )
-                val goodInterval = fsrsAlgorithm.nextInterval(goodParams)
+                val tmpEasy = card.nextCard(Review, Easy)
+                val easyInterval = maxOf(tmpEasy.interval, good.interval + 1.days)
 
-                good = card.next(
-                    status = FsrsCardStatus.Review,
-                    interval = goodInterval
-                )
-
-                val easyParams = fsrsAlgorithm.updatedParams(
-                    cardParams = card.params,
-                    rating = FsrsReviewRating.Easy,
-                    reviewTime = reviewTime
-                )
-                val easyInterval = fsrsAlgorithm.nextInterval(easyParams)
-
-                easy = card.next(
-                    status = FsrsCardStatus.Review,
-                    interval = listOf(easyInterval, goodInterval + 1.days).max()
-                )
+                easy = tmpEasy.copy(interval = easyInterval)
             }
 
-            FsrsCardStatus.Review -> {
-                val againParams = fsrsAlgorithm
-                    .updatedParams(card.params, FsrsReviewRating.Again, reviewTime)
+            Review -> {
+                again = card.nextCard(Relearning, Again, 5.minutes, true)
 
-                val hardParams = fsrsAlgorithm
-                    .updatedParams(card.params, FsrsReviewRating.Hard, reviewTime)
-                var hardInterval = fsrsAlgorithm.nextInterval(hardParams)
+                val tmpHard = card.nextCard(Review, Hard, incrementLapses = true)
+                val tmpGood = card.nextCard(Review, Good, incrementLapses = true)
+                val tmpEasy = card.nextCard(Review, Easy, incrementLapses = true)
 
-                val goodParams = fsrsAlgorithm
-                    .updatedParams(card.params, FsrsReviewRating.Good, reviewTime)
-                var goodInterval = fsrsAlgorithm.nextInterval(goodParams)
+                val hardInterval = maxOf(tmpHard.interval, tmpGood.interval)
+                val goodInterval = maxOf(tmpGood.interval, hardInterval + 1.days)
+                val easyInterval = maxOf(tmpEasy.interval, goodInterval + 1.days)
 
-                val easyParams = fsrsAlgorithm
-                    .updatedParams(card.params, FsrsReviewRating.Easy, reviewTime)
-                var easyInterval = fsrsAlgorithm.nextInterval(easyParams)
-
-                hardInterval = listOf(hardInterval, goodInterval).min()
-                goodInterval = listOf(goodInterval, hardInterval + 1.days).max()
-                easyInterval = listOf(goodInterval + 1.days, easyInterval).max()
-
-                again = card.next(
-                    status = FsrsCardStatus.Relearning,
-                    params = againParams,
-                    interval = 5.minutes,
-                    lapses = card.lapses + 1
-                )
-
-                hard = card.next(params = hardParams, interval = hardInterval)
-                good = card.next(params = goodParams, interval = goodInterval)
-                easy = card.next(params = easyParams, interval = easyInterval)
+                hard = tmpHard.copy(interval = hardInterval)
+                good = tmpGood.copy(interval = goodInterval)
+                easy = tmpEasy.copy(interval = easyInterval)
             }
         }
 

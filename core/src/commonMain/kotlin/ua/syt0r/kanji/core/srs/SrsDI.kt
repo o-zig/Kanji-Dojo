@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
 import ua.syt0r.kanji.core.srs.fsrs.DefaultFsrsScheduler
-import ua.syt0r.kanji.core.srs.fsrs.Fsrs45
+import ua.syt0r.kanji.core.srs.fsrs.Fsrs5
 import ua.syt0r.kanji.core.srs.fsrs.FsrsScheduler
 import ua.syt0r.kanji.core.srs.use_case.DefaultGetLetterDeckSrsProgressUseCase
 import ua.syt0r.kanji.core.srs.use_case.DefaultGetLetterSrsStatusUseCase
@@ -57,7 +57,7 @@ fun Module.applySrsDefinitions() {
     }
 
     factory<SrsScheduler> { DefaultSrsScheduler(fsrsScheduler = get()) }
-    factory<FsrsScheduler> { DefaultFsrsScheduler(Fsrs45()) }
+    factory<FsrsScheduler> { DefaultFsrsScheduler(Fsrs5()) }
 
     single<VocabSrsManager> {
         DefaultVocabSrsManager(
