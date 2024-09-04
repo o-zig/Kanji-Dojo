@@ -42,6 +42,17 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.1.1", LocalDate(2024, 9, 5)) {
+                    append(
+                        """
+                        - Added daily streak section to home screen
+                        - Added fancy kana voice button to letter practice
+                        - Upgraded FSRS algorithm to version 5
+                        - Fixed issue with FSRS intervals not decreasing when using Again and Hard buttons
+                        - Fixed issue with redundant filtering of some letters in search
+                        """.trimIndent()
+                    )
+                }
                 version("2.1.0", LocalDate(2024, 8, 30)) {
                     append(
                         """
