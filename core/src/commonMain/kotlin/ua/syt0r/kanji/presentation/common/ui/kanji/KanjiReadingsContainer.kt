@@ -55,7 +55,8 @@ fun KanjiReadingsContainer(
         }
 
         val maxLabelWidth = labelPlaceables.maxOf { it.width }
-        val readingsWidth = constraints.maxWidth - maxLabelWidth - horizontalSpacingPx
+        val readingsWidth = (constraints.maxWidth - maxLabelWidth - horizontalSpacingPx)
+            .coerceAtLeast(0)
 
         val readingRowsPlaceables = listOfNotNull(
             measurables.getOrNull(1),
