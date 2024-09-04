@@ -2,7 +2,6 @@ package ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.use_case
 
 import ua.syt0r.kanji.core.app_data.AppDataRepository
 import ua.syt0r.kanji.core.japanese.isKana
-import ua.syt0r.kanji.core.japanese.isKanji
 
 interface SearchValidCharactersUseCase {
     suspend operator fun invoke(input: String): SearchResult
@@ -28,7 +27,7 @@ class DefaultSearchValidCharactersUseCase(
     }
 
     private suspend fun processInput(input: Iterable<Char>): SearchResult {
-        val parsedCharacters = input.filter { it.isKanji() || it.isKana() }.distinct()
+        val parsedCharacters = input.distinct()
 
         val known = mutableListOf<String>()
         val unknown = mutableListOf<String>()
@@ -40,11 +39,7 @@ class DefaultSearchValidCharactersUseCase(
             val isKnown = strokes.isNotEmpty() && character.let {
                 when {
                     it.isKana() -> true
-                    it.isKanji() -> {
-                        appDataRepository.getReadings(character.toString()).isNotEmpty()
-                    }
-
-                    else -> false
+                    else -> appDataRepository.getReadings(character.toString()).isNotEmpty()
                 }
             }
 

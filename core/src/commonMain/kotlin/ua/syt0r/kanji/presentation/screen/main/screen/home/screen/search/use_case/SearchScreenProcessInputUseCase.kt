@@ -3,7 +3,6 @@ package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.search.use_ca
 import androidx.compose.runtime.mutableStateOf
 import ua.syt0r.kanji.core.app_data.AppDataRepository
 import ua.syt0r.kanji.core.japanese.isKana
-import ua.syt0r.kanji.core.japanese.isKanji
 import ua.syt0r.kanji.presentation.common.PaginatableJapaneseWordList
 import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.search.SearchScreenContract
 
@@ -21,11 +20,7 @@ class SearchScreenProcessInputUseCase(
 
             val isKnown = areStrokesAvailable && when {
                 it.isKana() -> true
-                it.isKanji() -> {
-                    appDataRepository.getReadings(charString).isNotEmpty()
-                }
-
-                else -> false
+                else -> appDataRepository.getReadings(charString).isNotEmpty()
             }
 
             if (isKnown) charString else null

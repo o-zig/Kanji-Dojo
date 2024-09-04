@@ -61,7 +61,7 @@ class DeckEditViewModel(
                         confirmExit = wasDeckEdited,
                         searching = mutableStateOf(false),
                         listState = mutableStateOf(emptyList()),
-                        lastSearchResult = mutableStateOf(null),
+                        lastSearchResult = mutableStateOf(searchResult),
                     )
 
                     addSearchLetters(
