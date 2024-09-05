@@ -318,7 +318,7 @@ fun GeneralDashboardScreenUI(
                                 modifier = Modifier.weight(1f)
                             )
 
-                            if (it.currentStreak >= it.longestStreak) {
+                            if (it.currentStreak >= it.longestStreak && it.currentStreak != 0) {
                                 Icon(Icons.AutoMirrored.Filled.TrendingUp, null)
                             }
                         }
