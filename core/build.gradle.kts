@@ -115,13 +115,22 @@ android {
 
 }
 
+val macOsBundleId = "ua.syt0r.kanji-dojo"
+
 compose.desktop {
     application {
         mainClass = "ua.syt0r.kanji.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "kanji"
+
+            packageName = "Kanji Dojo"
             packageVersion = AppVersion.desktopAppVersion
+
+            macOS {
+                bundleID = macOsBundleId
+                iconFile.set(File("mac_icon.icns"))
+            }
+
         }
     }
 }
@@ -146,6 +155,10 @@ buildConfig {
         buildConfigField(
             name = kanaVoiceFieldName,
             value = PrepareKanjiDojoAssetsTask.KanaVoice1JvmFileName
+        )
+        buildConfigField(
+            name = "macOsBundleId",
+            value = macOsBundleId
         )
     }
 
