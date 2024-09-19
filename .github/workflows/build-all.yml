@@ -79,7 +79,11 @@ jobs:
           cache: gradle
 
       - name: Build
-        run: ./gradlew core:packageDistributionForCurrentOS
+        run: |
+          ./gradlew core:packageDistributionForCurrentOS
+          DMG_PATH=$(find ./core/build/compose/binaries/main/dmg -name "*.dmg")
+          NEW_DMG_PATH=$(echo $DMG_PATH | sed 's/kanji-dojo/kanji-dojo-intel/g')
+          mv $DMG_PATH $NEW_DMG_PATH
 
       - name: Upload Desktop Build
         uses: actions/upload-artifact@v4
@@ -103,7 +107,11 @@ jobs:
           cache: gradle
 
       - name: Build
-        run: ./gradlew core:packageDistributionForCurrentOS
+        run: |
+          ./gradlew core:packageDistributionForCurrentOS
+          DMG_PATH=$(find ./core/build/compose/binaries/main/dmg -name "*.dmg")
+          NEW_DMG_PATH=$(echo $DMG_PATH | sed 's/kanji-dojo/kanji-dojo-arm/g')
+          mv $DMG_PATH $NEW_DMG_PATH
 
       - name: Upload Desktop Build
         uses: actions/upload-artifact@v4

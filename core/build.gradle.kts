@@ -125,7 +125,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
-            packageName = "Kanji Dojo"
+            packageName = "kanji-dojo"
             packageVersion = AppVersion.desktopAppVersion
             modules("jdk.unsupported", "java.sql")
 
