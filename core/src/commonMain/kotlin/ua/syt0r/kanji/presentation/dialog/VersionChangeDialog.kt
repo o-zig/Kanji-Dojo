@@ -42,6 +42,25 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.1.2", LocalDate(2024, 9, 20)) {
+                    append(
+                        """
+                        - Note for old users: read the migration notice down below!
+                        - Added daily limit for vocab practice
+                        - Added more daily limit configurations
+                        - Added new sorting option by expected review date on letter deck details screen
+                        - Added pending review indicators to dropdown menus when selecting practice types
+                        - New MacOS redistributable
+                        - Fixed translations being visible when doing letter reading practice and card is hidden
+                        - Fixed letters being hidden when learning writing with hints
+                        - Fixed timezone not being considered when calculating daily streak
+                        - Migration notice: after migration to the FSRS, which is far less strict than the old algorithm that was resetting study progress each time you do a mistake, the next review intervals for the letters practiced before the migration can end up quite big
+                        - To reduce the intervals visit the letter deck details screen (> button next to the deck on the Letters tab)
+                        - Then sort letters with the new Expected Review option and review them using Again button
+                        - Always use Again button to reduce given intervals if you are not confident about your recall ability
+                        """.trimIndent()
+                    )
+                }
                 version("2.1.1", LocalDate(2024, 9, 5)) {
                     append(
                         """
