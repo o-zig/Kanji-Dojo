@@ -89,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-intel
-          path: core/build/compose/binaries/*.dmg
+          path: core/build/compose/binaries/main/dmg/*.dmg
           retention-days: 1
 
 
@@ -117,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-arm
-          path: core/build/compose/binaries/*.dmg
+          path: core/build/compose/binaries/main/dmg/*.dmg
           retention-days: 1
 
   verify-uploaded-builds:
