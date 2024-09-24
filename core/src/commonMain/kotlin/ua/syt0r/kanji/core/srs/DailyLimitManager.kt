@@ -12,10 +12,9 @@ interface DailyLimitManager {
     val changesFlow: SharedFlow<Unit>
 
     suspend fun isEnabled(): Boolean
-    suspend fun setEnabled(value: Boolean)
-
     suspend fun getConfiguration(): DailyLimitConfiguration
-    suspend fun updateConfiguration(configuration: DailyLimitConfiguration)
+
+    suspend fun update(isEnabled: Boolean, configuration: DailyLimitConfiguration)
 
 }
 
@@ -55,10 +54,6 @@ class DefaultDailyLimitManager(
         return userPreferencesRepository.dailyLimitEnabled.get()
     }
 
-    override suspend fun setEnabled(value: Boolean) {
-        userPreferencesRepository.dailyLimitEnabled.set(value)
-    }
-
     override suspend fun getConfiguration(): DailyLimitConfiguration {
         val configurationJson = userPreferencesRepository.dailyLimitConfigurationJson.get()
         val configuration = Json
@@ -69,7 +64,8 @@ class DefaultDailyLimitManager(
         return configuration
     }
 
-    override suspend fun updateConfiguration(configuration: DailyLimitConfiguration) {
+    override suspend fun update(isEnabled: Boolean, configuration: DailyLimitConfiguration) {
+        userPreferencesRepository.dailyLimitEnabled.set(isEnabled)
         val configurationJson = json.encodeToString(configuration)
         userPreferencesRepository.dailyLimitConfigurationJson.set(configurationJson)
         _changesFlow.emit(Unit)

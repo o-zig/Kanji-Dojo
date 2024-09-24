@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ua.syt0r.kanji.core.analytics.AnalyticsManager
-import ua.syt0r.kanji.core.srs.PracticeLimit
 import ua.syt0r.kanji.core.srs.DailyLimitConfiguration
 import ua.syt0r.kanji.core.srs.DailyLimitManager
 import ua.syt0r.kanji.core.srs.LetterPracticeType
+import ua.syt0r.kanji.core.srs.PracticeLimit
 import ua.syt0r.kanji.core.srs.VocabPracticeType
 import ua.syt0r.kanji.presentation.common.ScreenLetterPracticeType
 import ua.syt0r.kanji.presentation.common.ScreenVocabPracticeType
@@ -118,7 +118,11 @@ class DailyLimitScreenViewModel(
                     vocabSeparatedLimit = vocabSeparatedLimit
                 )
             }
-            dailyLimitManager.updateConfiguration(configuration)
+
+            dailyLimitManager.update(
+                isEnabled = loadedState.enabled.value,
+                configuration = configuration
+            )
             _state.value = ScreenState.Done
         }
     }
