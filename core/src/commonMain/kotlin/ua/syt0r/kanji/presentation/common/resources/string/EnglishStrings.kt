@@ -1,6 +1,7 @@
 package ua.syt0r.kanji.presentation.common.resources.string
 
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.withStyle
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
 import ua.syt0r.kanji.presentation.common.withClickableUrl
 import ua.syt0r.kanji.presentation.screen.main.screen.feedback.FeedbackScreen
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.LetterPracticeScreenContract
@@ -378,12 +380,12 @@ object EnglishDeckPickerStrings : DeckPickerStrings {
     override val katakana: String = "Katakana"
 
     override val jltpTitle: String = "JLPT"
-    override val jlptDescription = { urlColor: Color ->
+    override val jlptDescription: StringResolveScope<AnnotatedString> = {
         buildAnnotatedString {
             append("The Japanese-Language Proficiency Test, or JLPT, is a standardized criterion-referenced test to evaluate and certify Japanese language proficiency for non-native speakers, covering language knowledge, reading ability, and listening ability. ")
             withClickableUrl(
                 url = "https://en.wikipedia.org/wiki/Japanese-Language_Proficiency_Test",
-                color = urlColor
+                color = MaterialTheme.extraColorScheme.link
             ) {
                 append("More info.")
             }
@@ -423,11 +425,6 @@ object EnglishDeckPickerStrings : DeckPickerStrings {
     }
     override val wanikaniItem: (Int) -> String = { "WaniKani Level $it" }
 
-    override val vocabJlptTitle: String = "JLPT *Experimental*"
-    override val vocabJlptDescription: AnnotatedString = """
-        The JLPT (Japanese Language Proficiency Test) vocabulary decks are organized by levels, ranging from N5 to N1, with N5 being the most basic and N1 the most advanced.
-        * Experimental: Decks might be incomplete and contain irrelevant words with similar reading
-    """.trimIndent().let { AnnotatedString(it) }
     override val vocabOtherTitle: String = "Other"
     override val vocabOtherDescription: AnnotatedString = "Some basic decks to get started"
         .let { AnnotatedString(it) }

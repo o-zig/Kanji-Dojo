@@ -304,7 +304,7 @@ interface DeckPickerStrings {
     val katakana: String
 
     val jltpTitle: String
-    val jlptDescription: (urlColor: Color) -> AnnotatedString
+    val jlptDescription: StringResolveScope<AnnotatedString>
     val jlptItem: (level: Int) -> String
 
     val gradeTitle: String
@@ -331,8 +331,6 @@ interface DeckPickerStrings {
 
     val vocabDeckItemWordsCountLabel: (words: Int) -> String
 
-    val vocabJlptTitle: String
-    val vocabJlptDescription: AnnotatedString
     val vocabOtherTitle: String
     val vocabOtherDescription: AnnotatedString
     val vocabDeckTitleTime: String

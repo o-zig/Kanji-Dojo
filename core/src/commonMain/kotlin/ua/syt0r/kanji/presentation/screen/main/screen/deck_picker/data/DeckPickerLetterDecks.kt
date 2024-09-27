@@ -39,10 +39,7 @@ private val JlptImportItems: List<LetterDeckPickerDeck> = CharacterClassificatio
 
 private val JlptDeckPickerCategory = DeckPickerCategory(
     title = { deckPicker.jltpTitle },
-    description = {
-        val color = MaterialTheme.extraColorScheme.link
-        deckPicker.jlptDescription(color)
-    },
+    description = { deckPicker.jlptDescription(this) },
     items = JlptImportItems
 )
 

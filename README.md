@@ -106,6 +106,10 @@ Used Libraries: `Compose Multiplatform`, `Kotlin Coroutines`, `Koin`, `SqlDeligh
   Words ranking by frequency of usage in internet </br>
   License: Creative Commons BY</br>
   Link: http://corpus.leeds.ac.uk/list.html
+* **yomichan-jlpt-vocab**</br>
+  This meta dictionary adds JLPT-level tags to words in Yomichan. Provides associations between JLPT words from Tanos and JMDict</br>
+  License: Creative Commons Attribution-Share Alike 4.0</br>
+  Link: https://github.com/stephenmk/yomichan-jlpt-vocab</br>
 
 ### License
 > (c) 2022-2023 Yaroslav Shuliak

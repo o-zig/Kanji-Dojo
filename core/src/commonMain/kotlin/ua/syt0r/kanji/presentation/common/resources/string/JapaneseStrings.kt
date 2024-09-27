@@ -1,6 +1,7 @@
 package ua.syt0r.kanji.presentation.common.resources.string
 
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.withStyle
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
 import ua.syt0r.kanji.presentation.common.withClickableUrl
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.LetterPracticeScreenContract
 import kotlin.time.Duration
@@ -349,12 +351,12 @@ object JapaneseDeckPickerStrings : DeckPickerStrings {
     override val katakana: String = JapaneseStrings.katakana
 
     override val jltpTitle: String = "日本語能力試験"
-    override val jlptDescription = { urlColor: Color ->
+    override val jlptDescription: StringResolveScope<AnnotatedString> = {
         buildAnnotatedString {
             append("日本語能力試験 (JLPT) は、日本語を母語としない人のための日本語の試験です。N5からN1までの難しさがあります。")
             withClickableUrl(
                 url = "https://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E%E8%83%BD%E5%8A%9B%E8%A9%A6%E9%A8%93",
-                color = urlColor
+                color = MaterialTheme.extraColorScheme.link
             ) {
                 append("詳細情報")
             }
@@ -399,11 +401,6 @@ object JapaneseDeckPickerStrings : DeckPickerStrings {
     }
     override val wanikaniItem: (Int) -> String = { "WaniKani レベル$it" }
 
-    override val vocabJlptTitle: String = "日本語能力試験 *実験的*"
-    override val vocabJlptDescription: AnnotatedString = """
-        日本語能力試験（JLPT）の単語デッキはN5からN1までのレベルに分かれています。N5が最も基本的で、N1が最も高度です。
-        * 実験的: デッキは不完全で、同じ読み方の無関係な単語が含まれている可能性があります
-    """.trimIndent().let { AnnotatedString(it) }
     override val vocabOtherTitle: String = "その他"
     override val vocabOtherDescription: AnnotatedString = "始めるための基本的なデッキ"
         .let { AnnotatedString(it) }

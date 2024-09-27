@@ -32,8 +32,8 @@ class DefaultGetDeckPickerCategoriesUseCase(
     private suspend fun getVocabCategories(): List<DeckPickerCategory> {
         return listOf(
             DeckPickerCategory(
-                title = { deckPicker.vocabJlptTitle },
-                description = { deckPicker.vocabJlptDescription },
+                title = { deckPicker.jltpTitle },
+                description = { deckPicker.jlptDescription(this) },
                 items = WordClassification.JLPT.all.map { jlpt ->
                     VocabDeckPickerDeck(
                         title = { deckPicker.jlptItem(jlpt.level) },

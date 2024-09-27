@@ -1,0 +1,9 @@
+{
+  "uniqueId": "yomichan-jlpt-vocab",
+  "developers": [],
+  "name": "yomichan-jlpt-vocab",
+  "description": "This meta dictionary adds JLPT-level tags to words in Yomichan. Provides associations between JLPT words from Tanos and JMDict",
+  "licenses": [
+    "CC-BY-SA-4.0"
+  ]
+}

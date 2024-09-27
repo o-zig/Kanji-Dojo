@@ -144,20 +144,20 @@ buildConfig {
 
     buildConfigField("versionCode", AppVersion.versionCode.toLong())
     buildConfigField("versionName", AppVersion.versionName)
-    buildConfigField("appDataAssetName", PrepareKanjiDojoAssetsTask.AppDataAssetFileName)
-    buildConfigField("appDataDatabaseVersion", PrepareKanjiDojoAssetsTask.AppDataDatabaseVersion)
+    buildConfigField("appDataAssetName", AppAssets.AppDataAssetFileName)
+    buildConfigField("appDataDatabaseVersion", AppAssets.AppDataDatabaseVersion)
 
     val kanaVoiceFieldName = "kanaVoiceAssetName"
     sourceSets.getByName("androidMain") {
         buildConfigField(
             name = kanaVoiceFieldName,
-            value = PrepareKanjiDojoAssetsTask.KanaVoice1AndroidFileName
+            value = AppAssets.KanaVoice1AndroidFileName
         )
     }
     sourceSets.getByName("jvmMain") {
         buildConfigField(
             name = kanaVoiceFieldName,
-            value = PrepareKanjiDojoAssetsTask.KanaVoice1JvmFileName
+            value = AppAssets.KanaVoice1JvmFileName
         )
         buildConfigField(
             name = "macOsBundleId",
@@ -177,13 +177,13 @@ aboutLibraries {
 }
 
 // Desktop
-val prepareAssetsTaskDesktop = task<PrepareKanjiDojoAssetsTask>("prepareKanjiDojoAssetsDesktop") {
-    platform = PrepareKanjiDojoAssetsTask.Platform.Desktop
+val prepareAssetsTaskDesktop = task<PrepareAssetsTask>("prepareKanjiDojoAssetsDesktop") {
+    platform = PrepareAssetsTask.Platform.Desktop
 }
 project.tasks.findByName("jvmProcessResources")!!.dependsOn(prepareAssetsTaskDesktop)
 
 // Android
-val prepareAssetsTaskAndroid = task<PrepareKanjiDojoAssetsTask>("prepareKanjiDojoAssetsAndroid") {
-    platform = PrepareKanjiDojoAssetsTask.Platform.Android
+val prepareAssetsTaskAndroid = task<PrepareAssetsTask>("prepareKanjiDojoAssetsAndroid") {
+    platform = PrepareAssetsTask.Platform.Android
 }
 project.tasks.findByName("preBuild")!!.dependsOn(prepareAssetsTaskAndroid)
