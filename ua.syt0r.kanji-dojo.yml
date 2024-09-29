@@ -1,0 +1,28 @@
+# TODO: make kanji-dojo Paths version/architecture independent
+# TODO: configure sandbox permissions
+id: ua.syt0r.kanji-dojo
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk17
+commands: kanji-dojo
+modules:
+  - name: openjdk
+    buildsystem: simple
+    build-commands:
+      - /usr/lib/sdk/openjdk17/install.sh
+
+  - name: kanji-dojo
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 kanji-dojo.sh /app/bin/kanji-dojo
+      - install -Dm644 kanji-dojo-linux-x64-2.1.2.jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+    sources:
+      - type: file
+        path: core/build/compose/jars/kanji-dojo-linux-x64-2.1.2.jar
+        dest-filename: kanji-dojo-linux-x64-2.1.2.jar
+      - type: script
+        dest-filename: kanji-dojo.sh
+        commands:
+          - /app/jre/bin/java -jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
