@@ -7,6 +7,17 @@ sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.openjdk17
 commands: kanji-dojo
+finish-args:
+  - --socket=pulseaudio
+  # X11 + XShm access
+  - --share=ipc
+  - --socket=x11
+  # Wayland access
+  #- --socket=wayland
+  # GPU acceleration if needed
+  #- --device=dri
+  # Needs to save files locally
+  - --filesystem=xdg-documents
 modules:
   - name: openjdk
     buildsystem: simple
