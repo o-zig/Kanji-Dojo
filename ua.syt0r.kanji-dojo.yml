@@ -9,6 +9,7 @@ sdk-extensions:
 commands: kanji-dojo
 finish-args:
   - --socket=pulseaudio
+  - --share=network
   # X11 + XShm access
   - --share=ipc
   - --socket=x11
