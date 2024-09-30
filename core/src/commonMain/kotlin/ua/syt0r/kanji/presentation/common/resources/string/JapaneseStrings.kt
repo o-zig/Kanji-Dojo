@@ -622,7 +622,7 @@ object JapaneseVocabPracticeStrings : VocabPracticeStrings {
     override val readingPriorityConfigurationDefault: String = "辞書の最初"
     override val readingPriorityConfigurationKanji: String = "漢字"
     override val readingPriorityConfigurationKana: String = "かな"
-    override val readingMeaningConfigurationTitle: String = "意味の表示"
+    override val readingMeaningConfigurationTitle: String = "常に意味の表示"
     override val readingMeaningConfigurationMessage: String =
         "回答が選択されていない場合の意味の表示を選択してください"
     override val translationInFrontConfigurationTitle: String = "表に翻訳を置く"

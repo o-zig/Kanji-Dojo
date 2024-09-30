@@ -640,7 +640,7 @@ object EnglishVocabPracticeStrings : VocabPracticeStrings {
     override val readingPriorityConfigurationDefault: String = "Default"
     override val readingPriorityConfigurationKanji: String = "Kanji"
     override val readingPriorityConfigurationKana: String = "Kana"
-    override val readingMeaningConfigurationTitle: String = "Show Meaning"
+    override val readingMeaningConfigurationTitle: String = "Always Show Meanings"
     override val readingMeaningConfigurationMessage: String =
         "Choose meaning visibility when answer is not selected"
     override val translationInFrontConfigurationTitle: String = "Translation In Front"
