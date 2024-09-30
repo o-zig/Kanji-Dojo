@@ -1,0 +1,5 @@
+- Updated JLPT vocab decks using data from yomichan-jlpt-vocab open source project
+- Fixed several misclassified letters from grade 4-6 and secondary school decks
+- Fixed daily limit toggle value not being saved
+- Updated vocab reading picker mode, now meanings are shown for all kana words
+- Small UI updates

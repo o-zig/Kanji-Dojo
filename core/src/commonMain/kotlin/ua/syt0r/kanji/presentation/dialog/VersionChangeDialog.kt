@@ -42,6 +42,17 @@ fun VersionChangeDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             ) {
+                version("2.1.3", LocalDate(2024, 9, 30)) {
+                    append(
+                        """
+                        - Updated JLPT vocab decks using data from yomichan-jlpt-vocab open source project
+                        - Fixed several misclassified letters from grade 4-6 and secondary school decks
+                        - Fixed daily limit toggle value not being saved
+                        - Updated vocab reading picker mode, now meanings are shown for all kana words
+                        - Small UI updates
+                        """.trimIndent()
+                    )
+                }
                 version("2.1.2", LocalDate(2024, 9, 20)) {
                     append(
                         """
