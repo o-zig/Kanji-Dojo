@@ -6,19 +6,20 @@ runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.openjdk17
-commands: kanji-dojo
+command: kanji-dojo
 finish-args:
   - --socket=pulseaudio
   - --share=network
-  # X11 + XShm access
   - --share=ipc
   - --socket=x11
-  # Wayland access
-  #- --socket=wayland
-  # GPU acceleration if needed
-  #- --device=dri
-  # Needs to save files locally
+  - --device=dri
   - --filesystem=xdg-documents
+  - --filesystem=xdg-data
+
+  - --env=PATH=/usr/bin:/app/bin/:/app/jre/bin
+  - --env=JAVA_HOME=/app/jre
+  - --env=JAVA=/app/jre/bin/java
+
 modules:
   - name: openjdk
     buildsystem: simple
