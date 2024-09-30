@@ -12,13 +12,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
-import ua.syt0r.kanji.presentation.common.theme.neutralTextButtonColors
+import ua.syt0r.kanji.presentation.common.ui.CenteredBoxWithSide
 import ua.syt0r.kanji.presentation.common.ui.FuriganaText
 import ua.syt0r.kanji.presentation.common.ui.LocalOrientation
 import ua.syt0r.kanji.presentation.common.ui.Orientation
@@ -63,15 +65,29 @@ fun VocabPracticeReadingPickerUI(
             annotationTextStyle = MaterialTheme.typography.bodyLarge,
         )
 
-        if (selectedAnswer != null || reviewState.showMeaning)
-            TextButton(
-                onClick = { onWordClick(reviewState.word) },
-                colors = ButtonDefaults.neutralTextButtonColors(),
-                modifier = Modifier.widthIn(max = 400.dp)
-            ) {
-                Text(reviewState.word.meanings.first())
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-            }
+        if (selectedAnswer != null || reviewState.showMeaning) {
+            CenteredBoxWithSide(
+                modifier = Modifier.widthIn(max = 400.dp),
+                placeSideContentAtStart = false,
+                centerContent = {
+                    Text(
+                        text = reviewState.word.meanings.joinToString(),
+                        style = MaterialTheme.typography.displaySmall,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                sideContent = {
+                    IconButton(
+                        enabled = selectedAnswer != null,
+                        onClick = { onWordClick(reviewState.word) }
+                    ) {
+                        Icon(Icons.Default.ArrowOutward, null)
+                    }
+                }
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 

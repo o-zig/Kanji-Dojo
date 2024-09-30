@@ -6,24 +6,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReadMore
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.FuriganaString
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.presentation.common.AutopaddedScrollableColumn
-import ua.syt0r.kanji.presentation.common.resources.string.resolveString
-import ua.syt0r.kanji.presentation.common.theme.neutralTextButtonColors
+import ua.syt0r.kanji.presentation.common.ui.CenteredBoxWithSide
 import ua.syt0r.kanji.presentation.common.ui.FuriganaText
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.FlashcardPracticeAnswerButtonsRow
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswer
@@ -52,10 +51,26 @@ fun VocabPracticeFlashcardUI(
     ) {
 
         val meaningUI = @Composable {
-            Text(
-                text = reviewState.meaning,
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center
+            CenteredBoxWithSide(
+                modifier = Modifier.widthIn(max = 400.dp),
+                placeSideContentAtStart = false,
+                centerContent = {
+                    Text(
+                        text = reviewState.word.meanings.joinToString(),
+                        style = MaterialTheme.typography.displaySmall,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                sideContent = {
+                    IconButton(
+                        enabled = reviewState.showAnswer.value,
+                        onClick = { onWordClick(reviewState.word) }
+                    ) {
+                        Icon(Icons.Default.ArrowOutward, null)
+                    }
+                }
             )
         }
 
@@ -90,25 +105,6 @@ fun VocabPracticeFlashcardUI(
                     Spacer(Modifier.height(8.dp))
                     meaningUI()
                 }
-            }
-
-            val detailsAlpha = if (reviewState.showAnswer.value) 1f else 0f
-
-            TextButton(
-                onClick = { onWordClick(reviewState.word) },
-                enabled = detailsAlpha != 0f,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-                    .graphicsLayer { alpha = detailsAlpha },
-                colors = ButtonDefaults.neutralTextButtonColors()
-            ) {
-                Text(
-                    text = resolveString { vocabPractice.detailsButton }
-                )
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ReadMore,
-                    contentDescription = null,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
             }
 
         }
