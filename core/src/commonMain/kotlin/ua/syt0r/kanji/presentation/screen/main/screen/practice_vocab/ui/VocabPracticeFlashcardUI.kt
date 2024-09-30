@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReadMore
 import androidx.compose.material3.ButtonDefaults
@@ -47,10 +46,7 @@ fun VocabPracticeFlashcardUI(
                 answers = answers,
                 showAnswer = reviewState.showAnswer,
                 onRevealAnswerClick = onRevealAnswerClick,
-                onAnswerClick = onNextClick,
-                modifier = Modifier.fillMaxWidth()
-                    .wrapContentWidth()
-                    .padding(bottom = 20.dp)
+                onAnswerClick = onNextClick
             )
         }
     ) {

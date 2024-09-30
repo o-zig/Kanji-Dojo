@@ -16,13 +16,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -43,9 +45,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.srs.SrsAnswer
-import ua.syt0r.kanji.core.theme_manager.LocalThemeManager
 import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
 import kotlin.time.Duration
@@ -63,12 +65,30 @@ data class PracticeAnswer(
 )
 
 @Composable
+fun PracticeAnswerButtonsContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+
+    Column(
+        modifier = modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(bottom = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        HorizontalDivider()
+        content()
+    }
+
+}
+
+@Composable
 fun PracticeAnswerButtonsRow(
     answers: PracticeAnswers,
-    onClick: (PracticeAnswer) -> Unit,
     enableKeyboardControls: Boolean = true,
-    modifier: Modifier = Modifier,
-    contentModifier: Modifier = Modifier,
+    onClick: (PracticeAnswer) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     val keyboardControlsModifier = if (enableKeyboardControls) {
@@ -94,65 +114,42 @@ fun PracticeAnswerButtonsRow(
         Modifier
     }
 
-    val theme = LocalThemeManager.current
-    val rowThemeModifier = when {
-        theme.isDarkTheme -> Modifier.clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(4.dp)
-
-        else -> Modifier.shadow(2.dp, MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surface)
-    }
-
-    val buttonThemeModifier = when {
-        theme.isDarkTheme -> Modifier.clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-
-        else -> Modifier
-    }
-
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState())
-            .then(contentModifier)
-            .then(rowThemeModifier)
-            .then(keyboardControlsModifier)
-            .width(IntrinsicSize.Max)
-            .height(IntrinsicSize.Max),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = if (theme.isDarkTheme) 4.dp else 2.dp
-        )
+    PracticeAnswerButtonsContainer(
+        modifier = modifier.then(keyboardControlsModifier)
     ) {
-        SrsAnswerButton(
-            label = resolveString { commonPractice.againButton },
-            interval = answers.again.srsAnswer.card.interval,
-            onClick = { onClick(answers.again) },
-            color = MaterialTheme.colorScheme.error,
-            outerModifier = buttonThemeModifier,
-            innerModifier = Modifier.padding(start = 2.dp)
-        )
-        SrsAnswerButton(
-            label = resolveString { commonPractice.hardButton },
-            interval = answers.hard.srsAnswer.card.interval,
-            onClick = { onClick(answers.hard) },
-            color = MaterialTheme.extraColorScheme.due,
-            outerModifier = buttonThemeModifier
-        )
-        SrsAnswerButton(
-            label = resolveString { commonPractice.goodButton },
-            interval = answers.good.srsAnswer.card.interval,
-            onClick = { onClick(answers.good) },
-            color = MaterialTheme.extraColorScheme.success,
-            outerModifier = buttonThemeModifier
-        )
-        SrsAnswerButton(
-            label = resolveString { commonPractice.easyButton },
-            interval = answers.easy.srsAnswer.card.interval,
-            onClick = { onClick(answers.easy) },
-            color = MaterialTheme.extraColorScheme.new,
-            outerModifier = buttonThemeModifier,
-            innerModifier = Modifier.padding(end = 2.dp)
-        )
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState())
+                .widthIn(min = 400.dp)
+                .padding(horizontal = 20.dp)
+                .width(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            SrsAnswerButton(
+                label = resolveString { commonPractice.againButton },
+                interval = answers.again.srsAnswer.card.interval,
+                onClick = { onClick(answers.again) },
+                color = MaterialTheme.colorScheme.error
+            )
+            SrsAnswerButton(
+                label = resolveString { commonPractice.hardButton },
+                interval = answers.hard.srsAnswer.card.interval,
+                onClick = { onClick(answers.hard) },
+                color = MaterialTheme.extraColorScheme.due
+            )
+            SrsAnswerButton(
+                label = resolveString { commonPractice.goodButton },
+                interval = answers.good.srsAnswer.card.interval,
+                onClick = { onClick(answers.good) },
+                color = MaterialTheme.extraColorScheme.success
+            )
+            SrsAnswerButton(
+                label = resolveString { commonPractice.easyButton },
+                interval = answers.easy.srsAnswer.card.interval,
+                onClick = { onClick(answers.easy) },
+                color = MaterialTheme.extraColorScheme.new
+            )
+        }
     }
 
 }
@@ -182,9 +179,7 @@ fun ExpandablePracticeAnswerButtonsRow(
             answers = data.answers,
             onClick = onClick,
             enableKeyboardControls = data.showButton,
-            modifier = Modifier.fillMaxSize()
-                .graphicsLayer { translationY = size.height * offset.value },
-            contentModifier = Modifier.padding(20.dp)
+            modifier = Modifier.graphicsLayer { translationY = size.height * offset.value },
         )
 
     }
@@ -196,36 +191,22 @@ fun FlashcardPracticeAnswerButtonsRow(
     answers: PracticeAnswers,
     showAnswer: State<Boolean>,
     onRevealAnswerClick: () -> Unit,
-    onAnswerClick: (PracticeAnswer) -> Unit,
-    modifier: Modifier = Modifier
+    onAnswerClick: (PracticeAnswer) -> Unit
 ) {
 
     Box(
-        modifier = modifier.width(IntrinsicSize.Max)
-            .height(IntrinsicSize.Max)
+        modifier = Modifier.height(IntrinsicSize.Max)
     ) {
 
         val hiddenButton = @Composable { isVisible: Boolean ->
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-            val themeModifier = when (LocalThemeManager.current.isDarkTheme) {
-                true -> Modifier.padding(4.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-
-                false -> Modifier.shadow(2.dp, MaterialTheme.shapes.medium)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surface)
-
-            }
-
-            Text(
+            SrsWholeRowButton(
                 text = resolveString { commonPractice.flashcardRevealButton },
-                modifier = Modifier.fillMaxSize()
+                onClick = onRevealAnswerClick,
+                modifier = Modifier
                     .graphicsLayer { if (!isVisible) alpha = 0f }
-                    .padding(horizontal = 20.dp)
-                    .then(themeModifier)
                     .focusable()
                     .focusRequester(focusRequester)
                     .onKeyEvent {
@@ -234,17 +215,16 @@ fun FlashcardPracticeAnswerButtonsRow(
                             true
                         } else false
                     }
-                    .clickable(onClick = onRevealAnswerClick)
-                    .wrapContentSize()
             )
+
         }
 
         val revealedButton = @Composable { isVisible: Boolean ->
             PracticeAnswerButtonsRow(
                 answers = answers,
+                enableKeyboardControls = isVisible,
                 onClick = { if (isVisible) onAnswerClick(it) },
-                modifier = Modifier.graphicsLayer { if (!isVisible) alpha = 0f },
-                contentModifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.graphicsLayer { if (!isVisible) alpha = 0f }
             )
         }
 
@@ -269,23 +249,21 @@ fun RowScope.SrsAnswerButton(
     label: String,
     interval: Duration,
     color: Color,
-    onClick: () -> Unit,
-    outerModifier: Modifier,
-    innerModifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(0.dp),
-        modifier = Modifier.weight(1f)
-            .fillMaxHeight()
-            .then(outerModifier)
+        modifier = Modifier
+            .weight(1f)
+            .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
-            .then(innerModifier)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
             text = resolveString { commonPractice.formattedSrsInterval(interval) },
             style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
             color = color,
         )
         Text(
@@ -295,6 +273,33 @@ fun RowScope.SrsAnswerButton(
             ),
             color = color
         )
+    }
+
+}
+
+@Composable
+private fun SrsWholeRowButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    PracticeAnswerButtonsContainer(modifier = modifier) {
+
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentWidth()
+                .width(400.dp)
+                .padding(horizontal = 20.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .wrapContentSize()
+        )
+
     }
 
 }

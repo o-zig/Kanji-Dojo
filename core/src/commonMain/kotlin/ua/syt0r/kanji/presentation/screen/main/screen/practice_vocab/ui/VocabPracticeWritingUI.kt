@@ -27,12 +27,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReadMore
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -44,7 +43,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,9 +57,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.presentation.common.AutopaddedScrollableColumn
-import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
-import ua.syt0r.kanji.presentation.common.theme.neutralTextButtonColors
+import ua.syt0r.kanji.presentation.common.ui.CenteredBoxWithSide
 import ua.syt0r.kanji.presentation.common.ui.LocalOrientation
 import ua.syt0r.kanji.presentation.common.ui.Orientation
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWriter
@@ -135,8 +132,6 @@ fun VocabPracticeWritingUI(
                     bottomOverlayContent = {
                         Input(
                             state = selectedReviewState,
-                            answersState = answersRowState,
-                            answerSelected = handleAnswer,
                             modifier = Modifier.fillMaxWidth()
                                 .padding(20.dp)
                                 .wrapContentSize()
@@ -171,8 +166,6 @@ fun VocabPracticeWritingUI(
 
                     Input(
                         state = selectedReviewState,
-                        answersState = answersRowState,
-                        answerSelected = handleAnswer,
                         modifier = Modifier.weight(1f)
                             .fillMaxHeight()
                             .padding(20.dp)
@@ -184,6 +177,12 @@ fun VocabPracticeWritingUI(
                 }
             }
         }
+
+        ExpandablePracticeAnswerButtonsRow(
+            state = answersRowState,
+            onClick = handleAnswer,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
     }
 
@@ -203,10 +202,24 @@ private fun Progress(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
-        Text(
-            text = reviewState.word.meanings.first(),
-            style = MaterialTheme.typography.displaySmall,
-            textAlign = TextAlign.Center
+        CenteredBoxWithSide(
+            modifier = Modifier,
+            placeSideContentAtStart = false,
+            sideContent = {
+                IconButton(
+                    enabled = revealAnswer.value,
+                    onClick = { onWordClick(reviewState.word) }
+                ) {
+                    Icon(Icons.Default.ArrowOutward, null)
+                }
+            },
+            centerContent = {
+                Text(
+                    text = reviewState.word.meanings.first(),
+                    style = MaterialTheme.typography.displaySmall,
+                    textAlign = TextAlign.Center
+                )
+            }
         )
 
         val lazyListState = rememberLazyListState()
@@ -226,25 +239,6 @@ private fun Progress(
             }
 
         }
-
-        val detailsAlpha = if (revealAnswer.value) 1f else 0f
-
-        TextButton(
-            onClick = { onWordClick(reviewState.word) },
-            enabled = detailsAlpha != 0f,
-            modifier = Modifier.graphicsLayer { alpha = detailsAlpha },
-            colors = ButtonDefaults.neutralTextButtonColors()
-        ) {
-            Text(
-                text = resolveString { vocabPractice.detailsButton }
-            )
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ReadMore,
-                contentDescription = null,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
-
     }
 
 }
@@ -252,8 +246,6 @@ private fun Progress(
 @Composable
 private fun Input(
     state: State<VocabCharacterWritingData>,
-    answersState: State<ExpandableVocabPracticeAnswersRowState>,
-    answerSelected: (PracticeAnswer) -> Unit,
     modifier: Modifier
 ) {
 
@@ -279,14 +271,6 @@ private fun Input(
             }
 
         }
-
-        ExpandablePracticeAnswerButtonsRow(
-            state = answersState,
-            onClick = answerSelected,
-            modifier = Modifier.fillMaxWidth()
-                .height(IntrinsicSize.Max)
-                .align(Alignment.BottomCenter)
-        )
 
     }
 

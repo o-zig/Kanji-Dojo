@@ -2,6 +2,7 @@ package ua.syt0r.kanji.presentation.common.ui.kanji
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,11 +16,11 @@ import kotlin.math.ceil
 private val LineSegmentLength = 6.dp
 private val LineSegmentWidth = 2.dp
 private val SmallerLineSegmentWidth = LineSegmentWidth / 4
-private val LineColor = Color.Gray
 
 @Composable
 fun KanjiBackground(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lineColor: Color = MaterialTheme.colorScheme.outline
 ) {
 
     Canvas(modifier) {
@@ -49,42 +50,48 @@ fun KanjiBackground(
             Orientation.Vertical,
             segmentsCount,
             verticalSegmentSize,
-            Offset(size.width / 2 - verticalSegmentSize.width / 2, 0f)
+            Offset(size.width / 2 - verticalSegmentSize.width / 2, 0f),
+            lineColor
         )
 
         drawDottedLineWithRectangles(
             Orientation.Horizontal,
             segmentsCount,
             horizontalSegmentSize,
-            Offset(0f, size.height / 2 - horizontalSegmentSize.height / 2)
+            Offset(0f, size.height / 2 - horizontalSegmentSize.height / 2),
+            lineColor
         )
 
         drawDottedLineWithRectangles(
             Orientation.Vertical,
             segmentsCount,
             smallVerticalSegmentSize,
-            Offset(size.width / 4 - smallVerticalSegmentSize.width / 2, 0f)
+            Offset(size.width / 4 - smallVerticalSegmentSize.width / 2, 0f),
+            lineColor
         )
 
         drawDottedLineWithRectangles(
             Orientation.Vertical,
             segmentsCount,
             smallVerticalSegmentSize,
-            Offset(size.width * 3 / 4 - smallVerticalSegmentSize.width / 2, 0f)
+            Offset(size.width * 3 / 4 - smallVerticalSegmentSize.width / 2, 0f),
+            lineColor
         )
 
         drawDottedLineWithRectangles(
             Orientation.Horizontal,
             segmentsCount,
             smallHorizontalSegmentSize,
-            Offset(0f, size.height / 4 - smallHorizontalSegmentSize.height / 2)
+            Offset(0f, size.height / 4 - smallHorizontalSegmentSize.height / 2),
+            lineColor
         )
 
         drawDottedLineWithRectangles(
             Orientation.Horizontal,
             segmentsCount,
             smallHorizontalSegmentSize,
-            Offset(0f, size.height * 3 / 4 - smallHorizontalSegmentSize.height / 2)
+            Offset(0f, size.height * 3 / 4 - smallHorizontalSegmentSize.height / 2),
+            lineColor
         )
 
     }
@@ -95,14 +102,15 @@ private fun DrawScope.drawDottedLineWithRectangles(
     orientation: Orientation,
     segmentsCount: Int,
     lineSegmentSize: Size,
-    startOffset: Offset
+    startOffset: Offset,
+    color: Color,
 ) {
     for (i in 0 until segmentsCount) {
         val offset = when (orientation) {
             Orientation.Vertical -> startOffset + Offset(0f, lineSegmentSize.height * 2 * i)
             Orientation.Horizontal -> startOffset + Offset(lineSegmentSize.width * 2 * i, 0f)
         }
-        drawRect(LineColor, offset, lineSegmentSize)
+        drawRect(color, offset, lineSegmentSize)
     }
 }
 
