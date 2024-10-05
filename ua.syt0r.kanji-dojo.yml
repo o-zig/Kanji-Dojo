@@ -39,8 +39,13 @@ modules:
       - install -Dm755 kanji-dojo.sh /app/bin/kanji-dojo
       - install -Dm644 kanji-dojo-linux-x64-2.1.2.jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
     sources:
+      - type: git
+        url: https://github.com/syt0r/Kanji-Dojo.git
+        tag: v2.1.2
+        commit: d3ca9b52d5789dabc6f2d0e8968131518589415a
       - type: file
-        path: core/build/compose/jars/kanji-dojo-linux-x64-2.1.2.jar
+        url: https://github.com/syt0r/Kanji-Dojo/releases/download/v2.1.2/kanji-dojo-linux-x64-2.1.2.jar
+        sha256: 133168ad58724a1a2270a1a691613ddaac708cc30d938657e22d9ee8adce0660
         dest-filename: kanji-dojo-linux-x64-2.1.2.jar
       - type: script
         dest-filename: kanji-dojo.sh
