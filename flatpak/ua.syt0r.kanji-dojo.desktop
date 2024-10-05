@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Kanji Dojo
+Comment=Application for practicing writing and reading Japanese characters
+Exec=kanji-dojo
+Icon=ua.syt0r.kanji-dojo
+Terminal=false
+Type=Application

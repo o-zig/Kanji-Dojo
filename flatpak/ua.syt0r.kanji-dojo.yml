@@ -38,11 +38,15 @@ modules:
     build-commands:
       - install -Dm755 kanji-dojo.sh /app/bin/kanji-dojo
       - install -Dm644 kanji-dojo-linux-x64-2.1.2.jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+      - install -Dm644 ua.syt0r.kanji-dojo.desktop /app/share/applications/ua.syt0r.kanji-dojo.desktop
+      - install -Dm644 kanji-dojo/preview_assets/inkscape_icon.svg /app/share/icons/hicolor/scalable/apps/ua.syt0r.kanji-dojo.svg
     sources:
+        # To extract app icon and .desktop file
       - type: git
         url: https://github.com/syt0r/Kanji-Dojo.git
         tag: v2.1.2
         commit: d3ca9b52d5789dabc6f2d0e8968131518589415a
+        dest: kanji-dojo
       - type: file
         url: https://github.com/syt0r/Kanji-Dojo/releases/download/v2.1.2/kanji-dojo-linux-x64-2.1.2.jar
         sha256: 133168ad58724a1a2270a1a691613ddaac708cc30d938657e22d9ee8adce0660
@@ -51,3 +55,6 @@ modules:
         dest-filename: kanji-dojo.sh
         commands:
           - /app/jre/bin/java -jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+        # TODO: Race-condition, these files should be taken from the git repository above once this is merged upstream
+      - type: file
+        path: ua.syt0r.kanji-dojo.desktop
