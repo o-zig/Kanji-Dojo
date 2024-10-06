@@ -2,6 +2,6 @@
 Name=Kanji Dojo
 Comment=Application for practicing writing and reading Japanese characters
 Exec=kanji-dojo
-Icon=com.github.syt0r.kanji-dojo
+Icon=io.github.syt0r.kanji-dojo
 Terminal=false
 Type=Application
