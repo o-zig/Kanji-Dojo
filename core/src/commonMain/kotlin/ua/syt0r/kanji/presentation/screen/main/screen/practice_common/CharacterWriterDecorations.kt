@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Check
@@ -42,16 +43,10 @@ fun CharacterWriterDecorations(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = inputShape
-            )
             .clip(inputShape)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onBackground,
-                shape = inputShape
-            )
+            .background(MaterialTheme.colorScheme.surface, inputShape)
+            .border(1.dp, MaterialTheme.colorScheme.outline, inputShape)
+            .padding(2.dp)
     ) {
 
         KanjiBackground(Modifier.fillMaxSize())

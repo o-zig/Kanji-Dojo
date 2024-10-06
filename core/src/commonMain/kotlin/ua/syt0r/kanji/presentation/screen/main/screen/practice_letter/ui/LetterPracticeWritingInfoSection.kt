@@ -40,8 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.app_data.data.CharacterRadical
@@ -354,32 +352,14 @@ private fun KanjiMeanings(
     modifier: Modifier = Modifier
 ) {
 
-    Column(modifier) {
-
+    if (meanings.isNotEmpty()) {
         Text(
-            text = meanings.firstOrNull()?.capitalize(Locale.current)
-                ?: resolveString { letterPractice.noKanjiTranslationsLabel },
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.fillMaxWidth()
+            text = meanings.joinToString(),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = modifier
         )
-
-        if (meanings.size > 1) {
-            MostlySingleLineEliminateOverflowRow(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                meanings.drop(1).forEach {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                }
-
-            }
-
-        }
-
     }
+
 }
 
 @Composable

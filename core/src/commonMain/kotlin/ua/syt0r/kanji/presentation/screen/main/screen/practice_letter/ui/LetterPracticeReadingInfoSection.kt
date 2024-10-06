@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ua.syt0r.kanji.core.japanese.KanaReading
 import ua.syt0r.kanji.presentation.common.textDp
@@ -62,8 +63,7 @@ fun LetterPracticeReadingInfoSection(
             is LetterPracticeItemData.KanjiReadingData -> {
                 KanjiDetails(
                     data = state.itemData,
-                    alpha = alpha,
-                    clickable = clickable
+                    alpha = alpha
                 )
             }
 
@@ -102,15 +102,15 @@ private fun ColumnScope.KanaDetails(
 @Composable
 private fun ColumnScope.KanjiDetails(
     data: LetterPracticeItemData.KanjiReadingData,
-    alpha: State<Float>,
-    clickable: Boolean,
+    alpha: State<Float>
 ) {
 
     if (data.meanings.isNotEmpty()) {
         Text(
             text = data.meanings.joinToString(),
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.alpha(alpha.value)
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.CenterHorizontally).alpha(alpha.value)
         )
     }
 

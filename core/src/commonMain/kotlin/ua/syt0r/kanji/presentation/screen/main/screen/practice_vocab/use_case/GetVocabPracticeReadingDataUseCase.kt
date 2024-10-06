@@ -50,7 +50,7 @@ class DefaultGetVocabPracticeReadingDataUseCase(
             hiddenReading = reading.withEncodedText(correctAnswer),
             answers = answers,
             correctAnswer = correctAnswer,
-            showMeaning = descriptor.showMeaning
+            showMeaning = descriptor.showMeaning || !containsKanji
         )
     }
 

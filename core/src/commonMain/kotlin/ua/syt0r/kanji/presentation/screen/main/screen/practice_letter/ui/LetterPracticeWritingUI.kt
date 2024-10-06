@@ -1,18 +1,33 @@
 package ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,11 +39,16 @@ import kotlinx.coroutines.launch
 import ua.syt0r.kanji.core.app_data.data.JapaneseWord
 import ua.syt0r.kanji.core.japanese.KanaReading
 import ua.syt0r.kanji.presentation.common.MultiplatformBackHandler
+import ua.syt0r.kanji.presentation.common.resources.string.resolveString
 import ua.syt0r.kanji.presentation.common.trackItemPosition
 import ua.syt0r.kanji.presentation.common.ui.LocalOrientation
 import ua.syt0r.kanji.presentation.common.ui.Material3BottomSheetScaffold
 import ua.syt0r.kanji.presentation.common.ui.Orientation
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.CharacterWritingProgress
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswer
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswerButtonsContainer
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswerButtonsRow
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.PracticeAnswers
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeLayoutConfiguration
 import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeReviewState
 
@@ -62,6 +82,15 @@ fun LetterPracticeWritingUI(
         coroutineScope.launch { scaffoldState.bottomSheetState.expand() }
     }
 
+    val answersSection: @Composable BoxScope.() -> Unit = {
+        AnswerButtons(
+            letterWritingButtonsState = reviewState.toAnswerButtonsState(),
+            studyCompleted = { reviewState.value.isStudyMode.value = false },
+            answerSelected = onNextClick,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+    }
+
     if (LocalOrientation.current == Orientation.Portrait) {
 
         Material3BottomSheetScaffold(
@@ -88,7 +117,6 @@ fun LetterPracticeWritingUI(
 
             LetterPracticeWritingInputSection(
                 state = reviewState,
-                onNextClick = onNextClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .trackItemPosition {
@@ -99,6 +127,8 @@ fun LetterPracticeWritingUI(
                     .padding(bottom = 20.dp)
                     .aspectRatio(1f, matchHeightConstraintsFirst = true)
             )
+
+            answersSection()
 
         }
 
@@ -131,7 +161,6 @@ fun LetterPracticeWritingUI(
         val inputSection: @Composable RowScope.() -> Unit = {
             LetterPracticeWritingInputSection(
                 state = reviewState,
-                onNextClick = onNextClick,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
@@ -147,17 +176,115 @@ fun LetterPracticeWritingUI(
             false -> infoSection to inputSection
         }
 
-        Row(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Box {
 
-            firstSection()
+            Row(
+                modifier = Modifier.fillMaxSize()
+            ) {
 
-            VerticalDivider(color = MaterialTheme.colorScheme.outline)
+                firstSection()
 
-            secondSection()
+                secondSection()
+
+            }
+
+            answersSection()
 
         }
 
+    }
+
+}
+
+
+private sealed interface LetterWritingButtonsState {
+    object Hidden : LetterWritingButtonsState
+    object StudyButtons : LetterWritingButtonsState
+    data class DefaultButtons(
+        val answers: PracticeAnswers,
+        val mistakes: Int
+    ) : LetterWritingButtonsState
+}
+
+@Composable
+private fun State<LetterPracticeReviewState.Writing>.toAnswerButtonsState(): State<LetterWritingButtonsState> =
+    remember {
+        derivedStateOf {
+            val currentState = value
+            val writerState = currentState.writerState.value
+            val progress = writerState.progress.value
+
+            when {
+                progress is CharacterWritingProgress.Completed.Idle -> {
+                    if (currentState.isStudyMode.value) LetterWritingButtonsState.StudyButtons
+                    else LetterWritingButtonsState.DefaultButtons(
+                        answers = currentState.answers,
+                        mistakes = progress.mistakes
+                    )
+                }
+
+                else -> LetterWritingButtonsState.Hidden
+            }
+        }
+    }
+
+
+@Composable
+private fun AnswerButtons(
+    letterWritingButtonsState: State<LetterWritingButtonsState>,
+    studyCompleted: () -> Unit,
+    answerSelected: (PracticeAnswer) -> Unit,
+    modifier: Modifier
+) {
+
+    val buttonsTransition = updateTransition(letterWritingButtonsState.value)
+    buttonsTransition.AnimatedContent(
+        transitionSpec = {
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) + fadeIn() togetherWith
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down) + fadeOut()
+        },
+        contentKey = { it !is LetterWritingButtonsState.Hidden },
+        modifier = modifier
+    ) { writingButtonsState ->
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+
+            when (writingButtonsState) {
+                LetterWritingButtonsState.Hidden -> {
+
+                }
+
+                LetterWritingButtonsState.StudyButtons -> {
+                    PracticeAnswerButtonsContainer {
+                        Button(
+                            onClick = studyCompleted,
+                            modifier = Modifier.width(400.dp)
+                                .padding(horizontal = 20.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface,
+                                contentColor = MaterialTheme.colorScheme.surface
+                            ),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text(text = resolveString { letterPractice.studyFinishedButton })
+                        }
+                    }
+                }
+
+                is LetterWritingButtonsState.DefaultButtons -> {
+                    PracticeAnswerButtonsRow(
+                        answers = writingButtonsState.answers,
+                        onClick = {
+                            val updatedAnswer = it.copy(mistakes = writingButtonsState.mistakes)
+                            answerSelected(updatedAnswer)
+                        }
+                    )
+                }
+            }
+        }
     }
 }

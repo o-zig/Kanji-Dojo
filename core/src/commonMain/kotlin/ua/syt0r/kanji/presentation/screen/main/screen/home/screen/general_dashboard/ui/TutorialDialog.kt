@@ -78,22 +78,19 @@ fun TutorialDialog(
                         label = resolveString { commonPractice.hardButton },
                         interval = 1.days,
                         onClick = { },
-                        color = MaterialTheme.extraColorScheme.due,
-                        outerModifier = Modifier
+                        color = MaterialTheme.extraColorScheme.due
                     )
                     SrsAnswerButton(
                         label = resolveString { commonPractice.goodButton },
                         interval = 3.days,
                         onClick = { },
-                        color = MaterialTheme.extraColorScheme.success,
-                        outerModifier = Modifier
+                        color = MaterialTheme.extraColorScheme.success
                     )
                     SrsAnswerButton(
                         label = resolveString { commonPractice.easyButton },
                         interval = 12.days,
                         onClick = { },
-                        color = MaterialTheme.extraColorScheme.new,
-                        outerModifier = Modifier
+                        color = MaterialTheme.extraColorScheme.new
                     )
                 }
 
