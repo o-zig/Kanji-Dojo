@@ -18,7 +18,10 @@ finish-args:
   - --device=dri
   # XDG-documents for exporting and importing backups
   - --filesystem=xdg-documents
+  - --filesystem=xdg-desktop
   # XDG-data for storing preferences and application state
+  #  This shouldn't be necessary, but the flatpak fails to store the state otherwise
+  #  Maybe this is an upstream bug where xdg-data is hardcoded rather than using system XDG permissions?
   - --filesystem=xdg-data/kanji-dojo
   # Access to /tmp is necessary to unpack the native sqlite driver
   - --filesystem=/tmp
