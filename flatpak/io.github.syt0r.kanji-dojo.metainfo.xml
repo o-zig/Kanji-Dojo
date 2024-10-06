@@ -15,20 +15,90 @@
   </supports>
   
   <description>
-    <p>
-      Learn &amp; practice writing Japanese character.
-    </p>
-    <p>
-      Features:  - Study kana (both Hiragana and Katakana) and kanji  - Practice by following JLPT levels or school grades  - Create your own list to study, more than 6000 characters in total are available  - Works offline
-    </p>
+    <p>Learn &amp; practice writing Japanese character.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Study kana (both Hiragana and Katakana) and kanji</li>
+      <li>Practice by following JLPT levels or school grades</li>
+      <li>Create your own list to study, more than 6000 characters in total are available</li>
+      <li>Works offline</li>
+    </ul>
   </description>
 
   <categories>
       <category>Education</category>
   </categories>
 
-   <url type="homepage">https://github.com/syt0r/Kanji-Dojo</url>
-   <url type="bugtracker">https://github.com/syt0r/Kanji-Dojo/issues</url>
-  
+  <developer id="io.github.syt0r">
+    <name>Yaroslav Shuliak</name>
+  </developer>
+
+  <url type="homepage">https://github.com/syt0r/Kanji-Dojo</url>
+  <url type="bugtracker">https://github.com/syt0r/Kanji-Dojo/issues</url>
+
+
   <launchable type="desktop-id">io.github.syt0r.kanji-dojo.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Kanji practice (light theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Kanji practice (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list selection screen (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list creation screen (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list overview screen (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list practice configuration screen (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list practice summary screen (light theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Character list practice summary screen (dark theme)</caption>
+      <image>https://raw.githubusercontent.com/syt0r/Kanji-Dojo/refs/heads/develop/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png</image>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="language-profanity">mild</content_attribute>
+    <content_attribute id="language-discrimination">mild</content_attribute>
+  </content_rating>
+
+  <releases>
+    <release version="2.1.2" date="2024-09-19">
+      <description>
+        <ul>
+          <li>Note for old users: read the migration notice down below!</li>
+          <li>Added daily limit for vocab practice</li>
+          <li>Added more daily limit configurations</li>
+          <li>Added new sorting option by expected review date on letter deck details screen</li>
+          <li>Added pending review indicators to dropdown menus when selecting practice types</li>
+          <li>New MacOS redistributable, read updated instruction for installation in README.md</li>
+          <li>Fixed translations being visible when doing letter reading practice and card is hidden</li>
+          <li>Fixed letters being hidden when learning writing with hints</li>
+          <li>Fixed timezone not being considered when calculating daily streak</li>
+          <li>Migration notice: after migration to the FSRS, which is far less strict than the old algorithm that was resetting study progress each time you do a mistake, the next review intervals for the letters practiced before the migration can end up quite big</li>
+          <li>To reduce the intervals visit the letter deck details screen (> button next to the deck on the Letters tab)</li>
+          <li>Then sort letters with the new Expected Review option and review them using Again button</li>
+          <li>Always use Again button to reduce given intervals if you are not confident about your recall ability</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+
 </component>
