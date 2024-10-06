@@ -41,8 +41,13 @@ modules:
     build-commands:
       - install -Dm755 kanji-dojo.sh /app/bin/kanji-dojo
       - install -Dm644 kanji-dojo-linux-x64-2.1.2.jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+      # TODO: Use differnt path after initial merge
+      #- install -Dm644 kanji-dojo/flatpak/io.github.syt0r.kanji-dojo.desktop /app/share/applications/io.github.syt0r.kanji-dojo.desktop
       - install -Dm644 io.github.syt0r.kanji-dojo.desktop /app/share/applications/io.github.syt0r.kanji-dojo.desktop
       - install -Dm644 kanji-dojo/preview_assets/inkscape_icon.svg /app/share/icons/hicolor/scalable/apps/io.github.syt0r.kanji-dojo.svg
+      # TODO: Use differnt path after initial merge
+      #- install -Dm644 kanji-dojo/flatpak/io.github.syt0r.kanji-dojo.metainfo.xml /app/share/metainfo/io.github.syt0r.kanji-dojo.metainfo.xml
+      - install -Dm644 io.github.syt0r.kanji-dojo.metainfo.xml /app/share/metainfo/io.github.syt0r.kanji-dojo.metainfo.xml
     sources:
         # To extract app icon and .desktop file
       - type: git
@@ -61,3 +66,5 @@ modules:
         # TODO: Race-condition, these files should be taken from the git repository above once this is merged upstream
       - type: file
         path: io.github.syt0r.kanji-dojo.desktop
+      - type: file
+        path: io.github.syt0r.kanji-dojo.metainfo.xml

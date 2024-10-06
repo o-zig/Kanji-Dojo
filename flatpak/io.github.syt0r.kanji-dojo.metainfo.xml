@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.syt0r.kanji_dojo</id>
+  
+  <name>Kanji Dojo</name>
+  <summary>Application for practicing writing and reading Japanese characters</summary>
+  
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  
+  <description>
+    <p>
+      Learn &amp; practice writing Japanese character.
+    </p>
+    <p>
+      Features:  - Study kana (both Hiragana and Katakana) and kanji  - Practice by following JLPT levels or school grades  - Create your own list to study, more than 6000 characters in total are available  - Works offline
+    </p>
+  </description>
+
+   <url type="homepage">https://github.com/syt0r/Kanji-Dojo</url>
+   <url type="bugtracker">https://github.com/syt0r/Kanji-Dojo/issues</url>
+  
+  <launchable type="desktop-id">io.github.syt0r.kanji-dojo.desktop</launchable>
+</component>
