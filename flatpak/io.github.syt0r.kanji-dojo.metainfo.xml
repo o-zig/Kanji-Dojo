@@ -80,6 +80,15 @@
   </content_rating>
 
   <releases>
+    <release version="2.1.3" date="2024-09-30">
+      <description>
+           <li>Updated JLPT vocab decks using data from yomichan-jlpt-vocab open source project</li>
+           <li>Fixed several misclassified letters from grade 4-6 and secondary school decks</li>
+           <li>Fixed daily limit toggle value not being saved</li>
+           <li>Updated vocab reading picker mode, now meanings are shown for all kana words</li>
+           <li>Small UI updates</li>
+      </description>
+    </release>
     <release version="2.1.2" date="2024-09-19">
       <description>
         <ul>

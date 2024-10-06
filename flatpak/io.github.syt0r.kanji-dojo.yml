@@ -40,7 +40,7 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 kanji-dojo.sh /app/bin/kanji-dojo
-      - install -Dm644 kanji-dojo-linux-x64-2.1.2.jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+      - install -Dm644 kanji-dojo-linux-x64-2.1.3.jar /app/bin/kanji-dojo-linux-x64-2.1.3.jar
       # TODO: Use differnt path after initial merge
       #- install -Dm644 kanji-dojo/flatpak/io.github.syt0r.kanji-dojo.desktop /app/share/applications/io.github.syt0r.kanji-dojo.desktop
       - install -Dm644 io.github.syt0r.kanji-dojo.desktop /app/share/applications/io.github.syt0r.kanji-dojo.desktop
@@ -52,17 +52,17 @@ modules:
         # To extract app icon and .desktop file
       - type: git
         url: https://github.com/syt0r/Kanji-Dojo.git
-        tag: v2.1.2
-        commit: d3ca9b52d5789dabc6f2d0e8968131518589415a
+        tag: v2.1.3
+        commit: ea436b0bcbb5ec0b523f0698202d6ff0fd3869fe
         dest: kanji-dojo
       - type: file
-        url: https://github.com/syt0r/Kanji-Dojo/releases/download/v2.1.2/kanji-dojo-linux-x64-2.1.2.jar
-        sha256: 133168ad58724a1a2270a1a691613ddaac708cc30d938657e22d9ee8adce0660
-        dest-filename: kanji-dojo-linux-x64-2.1.2.jar
+        url: https://github.com/syt0r/Kanji-Dojo/releases/download/v2.1.3/kanji-dojo-linux-x64-2.1.3.jar
+        sha256: 16b0c0f1835b626837321a8e087fddd291444e22e5d09f10a441ff1ee9c65aa8
+        dest-filename: kanji-dojo-linux-x64-2.1.3.jar
       - type: script
         dest-filename: kanji-dojo.sh
         commands:
-          - /app/jre/bin/java -jar /app/bin/kanji-dojo-linux-x64-2.1.2.jar
+          - /app/jre/bin/java -jar /app/bin/kanji-dojo-linux-x64-2.1.3.jar
         # TODO: Race-condition, these files should be taken from the git repository above once this is merged upstream
       - type: file
         path: io.github.syt0r.kanji-dojo.desktop
